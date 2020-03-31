@@ -20,8 +20,6 @@
 # 16 = admitted to ITU: other days
 # 17 = died
 
-set.seed(34) # this means that the results are replicable (i.e. random values come out the same every time)
-
 #-------
 # inputs
 #-------
@@ -36,7 +34,7 @@ total_days <- 110
 
 # individuals
 hostel_population <- 8784
-rough_sleeping_population <- 1136 # based on official rough sleeper counts and 'case ascertainment' estimate using CHAIN and other assumptions
+rough_sleeping_population <- 2862 # based on official rough sleeper counts and 'case ascertainment' estimate using CHAIN and other assumptions
 proportion_vulnerable <- 0.50
 all_protect <- F # if T, everyone is offered protect regardless of vulnerability
 
@@ -71,8 +69,8 @@ ae_prob <- 1/duration_covid # daily probability of A&E during COVID illness: ave
 
 # case fatality and hospitalisation rates
 covid_severity <- c(0.65, 0.2, 0.1, 0.05) # mild / moderate / severe / critical. should sum to 1
-cfr_community <- c(0.005, 0.01, 0.05, 0.2)
-rr_vulnerable <- 4 # risk ratio for vulnerable people
+cfr_community <- c(0.0001, 0.005, 0.025, 0.1)
+rr_vulnerable <- 7 # risk ratio for vulnerable people
 rr_CARE <- 0.5 # risk ratio for mild and moderate cases in covid CARE
 
 # covid community incidence
@@ -80,7 +78,7 @@ peak_day <- 40
 outbreak_duration <- 90 # should be shorter than model duration
 covid_attack_hostel <- 0.8 # anything less than 1
 covid_attack_rough_sleepers <- 0.5 # anything less than 1
-PROTECT_incidence_fraction <- 1/4 # incidence of covid & ILI in PROTECT is x * hostel rate
+PROTECT_incidence_fraction <- 1/2 # incidence of covid & ILI in PROTECT is x * hostel rate
 B <- 1.75 # parameter for 'shape' of curve (not much value in changing)
 
 #-----------------------
@@ -161,7 +159,7 @@ f <- function (day) {
   q.admission.start <- if(day <= duration_admission) 0 else dat[, day - duration_admission]
   q.covid.susceptible <- rowSums((dat == 3) | (dat == 7)) == 0
   
-  # protect exceeded capacity yesterday
+  # protect exceeded capacity yesterday (if so, then doesn't accept anyone today)
   protect_full <- if (is.na(max_protect)) F else sum(sy %in% 5:7) >= max_protect
   
   # probabilities
@@ -206,8 +204,8 @@ f <- function (day) {
   status[(sy == 11) & p.self.discharge & (q.sd == 10)] <- 4
   
   # CARE: ili from hostel or PROTECT (returns to PROTECT if from PROTECT)
-  status[(sy == 2) & p.ref.CARE & day <= outbreak_duration] <- 8
-  status[(sy == 6)] <- 8
+  status[(sy == 2) & p.ref.CARE & (day <= outbreak_duration)] <- 8
+  status[(sy == 6) & (day <= outbreak_duration)] <- 8
   status[(sy == 8)] <- 9
   status[(sy == 9)] <- 9
   status[(sy == 9) & (q.test == 8)] <- 1
@@ -257,12 +255,19 @@ ambulance_trip <- (dat == 13) | (dat == 15)
 #------------------
 
 library(RColorBrewer)
+yaxt <- c(outer(c(1, 2.5, 5), 10^(0:6), '*'))
+yaxt <- yaxt[yaxt != 2.5]
+yxf <- function(ymax, tk = 5, type = 'next') { # function for making y-axes
+  tm <- yaxt[which.min(abs(yaxt - ymax / tk))]
+  nticks <- if (type == 'next') ceiling(ymax / tm) else floor(ymax / tm)
+  seq(0, tm * nticks, tm)
+}
 
 # plot of incidence - hostel, rough sleeping and ILI
 #---------------------------------------------------
 
 ymax <- ceiling(max(covid_incidence) * 200) * 5
-par(mar = c(5, 5, 1, 10), xpd = NA)
+par(mar = c(4, 5, 1, 15), xpd = NA)
 plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, ymax), xlab = NA, ylab = 'Incidence per 1,000', axes = F)
 rect(0, 0, total_days, ymax)
 lines(1:total_days, covid_incidence[1,] * 1000)
@@ -270,73 +275,75 @@ lines(1:total_days, covid_incidence[2,] * 1000, col = 'red')
 segments(0, ili_incidence * 1000, total_days, lty = 2)
 axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
 segments(0, 0, total_days)
-axis(2, seq(0, ymax, 5), pos = 0, las = 2)
+axis(2, yxf(ymax), pos = 0, las = 2)
 title(xlab = 'Week', line = 2.5)
 ys <- ymax * c(0.35, 0.5, 0.65)
 segments(total_days * 1.05, ys, total_days * 1.15, col = c('black', 'red', 'black'), lty = c(1, 1, 2))
 text(total_days * 1.17, ys, c('COVID: Hostel\npopulation', 'COVID: Rough\nsleeping population', 'Other influenza-\nlike illness'), adj = 0)
 
-
 # number at each status by day
 #-----------------------------
-ds <- t(sapply(1:17, function(x) colSums(dat == x))) # daily summary
 
+ds <- t(sapply(1:17, function(x) colSums(dat == x))) # daily summary
 ds2 <- rbind(`Community: susceptible` = colSums(ds[1:2,]),
-             PROTECT = colSums(ds[5:7,]),
+             `COVID-PROTECT` = colSums(ds[5:7,]),
              `Community: recovered` = ds[12,],
-             `Community: Covid-19` = colSums(ds[3:4,]),
-             CARE = colSums(ds[8:11,]),
+             `Community: COVID-19` = colSums(ds[3:4,]),
+             `COVID-CARE` = colSums(ds[8:11,]),
              `Admitted to hospital` = colSums(ds[13:14,]),
-             ITU = colSums(ds[15:16,]),
+             `Admitted to ITU` = colSums(ds[15:16,]),
              Died = ds[17,])
 
-any_hospital <- colSums(ds[13:16,])
-
-# stacked plot of statuses
-#-------------------------
+# Number of people by current status
+#-----------------------------------
 
 ds3 <- apply(ds2, 2, cumsum)
 ds3 <- rbind(0, ds3)
 
 cols <- brewer.pal(nrow(ds2), 'Paired')
-par(mar = c(4, 5, 1, 12))
+par(mar = c(4, 5, 1, 15), xpd = NA)
 plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, n), axes = F, xlab = NA, ylab = NA)
 for(i in 1:nrow(ds2)) {
   polygon(c(0:total_days, total_days:0), c(ds3[i+1,], rev(ds3[i,])), col = cols[i])
 }
 axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
 segments(0, 0, total_days + 1)
-axis(2, pos = 0, las = 2)
+axis(2, yxf(n, type = 'previous'), pos = 0, las = 2)
 ys <- seq(n * 0.25, n * 0.75, length.out = length(cols) + 1)
-rect(total_days * 1.1, ys[-length(ys)], total_days * 1.2, ys[-1], col = cols)
-text(total_days * 1.25, ys[-length(ys)] + diff(ys) / 2, rownames(ds2), adj = 0)
+rect(total_days * 1.07, ys[-length(ys)], total_days * 1.14, ys[-1], col = cols)
+text(total_days * 1.19, ys[-length(ys)] + diff(ys) / 2, rownames(ds2), adj = 0)
 title(xlab = 'Week', line = 2.5)
 title(ylab = 'Population', line = 4)
 
-# line graph of healthcare use
-#-----------------------------
+# Hospital and ambulance use
+#---------------------------
 
-# ambulance, A&E, hospital, ITU, CARE, PROTECT
+cols <- brewer.pal(4, 'Set1')
 
-cols <- brewer.pal(6, 'Dark2')
-
-par(xpd = NA, mar = c(4, 4, 1, 8))
-
-fpl <- function(d) {
-  plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, max(d)), xlab = NA, ylab = NA, axes = F)
-  rect(0, 0, total_days, max(d))
-  for (i in 1:nrow(d)) lines(0:total_days, d[i,], col = cols[i])
+fpl <- function(d, yrange = 0.15) {
+  ymax <- max(d) * 1.1
+  plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, ymax), xlab = NA, ylab = NA, axes = F)
+  for (i in 1:nrow(d)) lines(0:total_days, d[i,], col = cols[i], lwd = 2)
   axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
   segments(0, 0, total_days + 1)
-  axis(2, pos = 0, las = 2)
-  ys <- seq(max(d) * 0.25, max(d) * 0.75, length.out = nrow(d))
-  segments(total_days * 1.1, ys, total_days * 1.2, ys, col = cols)
+  axis(2, yxf(ymax, type = 'previous'), pos = 0, las = 2)
+  rect(0, 0, total_days, ymax)
+  ys <- seq(ymax * (0.5-yrange), ymax * (0.5+yrange), length.out = nrow(d))
+  segments(total_days * 1.1, ys, total_days * 1.2, ys, col = cols, lwd = 2)
   text(total_days * 1.25, ys, row.names(d), adj = 0)
+  title(xlab = 'Week', line = 2.5)
+  title(ylab = 'Number', line = 3.5)
 }
 
-par(mar = c(4, 4, 1, 12))
-fpl(ds2[c(2, 5),])
-fpl(rbind(ds2[6:7,], ae = colSums(ae_visits), amb = colSums(ambulance_trip)))
+par(mar = c(4, 5, 1, 15), xpd = NA)
+fpl(rbind(ds2[6:7,], `A&E visits` = colSums(ae_visits), `Ambulance journeys` = colSums(ambulance_trip)))
+
+# CARE and PROTECT use
+#---------------------
+
+par(mar = c(4, 5, 1, 15), xpd = NA)
+fpl(ds2[c(5, 2),], yrange = 0.05)
+
 
 # check cases with most status changes
 #-------------------------------------
@@ -352,7 +359,7 @@ new_cases_total <- colSums((dat == 3) | (dat == 7))
 new_cases_rough_sleepers <- colSums(((dat == 3) | (dat == 7)) & type == 2)
 cum_inc <- cumsum(new_cases_total) / n
 ymax <- ceiling(max(new_cases_total)/50) * 50
-par(xpd = NA, mar = c(5, 5, 1, 5))
+par(xpd = NA, mar = c(4, 5, 1, 15))
 plot(1, type = 'n', xlim = c(0, total_days + 1), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'New cases')
 rect(0, 0, total_days + 1, ymax)
 title(xlab = 'Week', line = 2.5)
@@ -360,23 +367,32 @@ rect(0:total_days, 0, 1:(total_days + 1), new_cases_total, border = NA, col = 'g
 rect(0:total_days, 0, 1:(total_days + 1), new_cases_rough_sleepers, border = NA, col = 'grey60')
 lines(0:total_days + 0.5, cum_inc * ymax, col = 'white', lwd = 5)
 lines(0:total_days + 0.5, cum_inc * ymax, col = 'red')
-axis(2, 0:(ymax/50) * 50, pos = 0, las = 2)
+axis(2, yxf(ymax, type = 'previous'), pos = 0, las = 2)
 axis(4, 0:5/5 * ymax, paste0(0:5/5 * 100, '%'), las = 2, pos = total_days + 1, col = 'red', col.axis = 'red')
 axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
 segments(0, 0, total_days + 1)
-text(total_days + total_days/4, ymax/2, 'Cumulative incidence', srt = 270, col = 'red')
+text(total_days * 1.35, ymax/2, 'Cumulative incidence', srt = 270, col = 'red')
 text(total_days - total_days / 20, max(cum_inc + 0.05) * ymax, paste0(round(max(cum_inc) * 100, 0), '%'), col = 'red')
-xs <- c(0.7, 0.97)
-ys <- c(0.2, 0.25, 0.3)
+xs <- c(1.45, 1.9)
+ys <- c(0.9, 0.95, 1)
 rect(total_days * xs[1], ymax*ys[1:2], total_days * xs[2], ymax*ys[2:3], col = c('grey60', 'grey80'), border = NA)
 text(total_days * mean(xs), ymax*(ys[1:2] + diff(ys)/2), c('Rough sleepers', 'Total'), cex = 0.8, col = c('white', 'black'))
 
 # deaths
 #--------
-  
+
 deaths <- (cbind(0, dat[,-ncol(dat)]) != 17) & (dat == 17)
 deaths <- colSums(deaths)
-plot(deaths)
+ymax <- max(deaths)
+par(xpd = NA, mar = c(4, 5, 1, 1))
+plot(1, type = 'n', xlim = c(0, total_days + 1), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'Deaths')
+rect(0:total_days, 0, 1:(total_days+1), deaths, col = "#8DA0CB", border = NA)
+axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
+segments(0, 0, total_days + 1)
+rect(0, 0, total_days+1, ymax)
+axis(2, yxf(ymax, type = 'previous'), pos = 0, las = 2)
+title(xlab = 'Week', line = 2.5)
+text(total_days * 0.05, ymax * 0.95, paste0('Total = ', sum(deaths)), adj = 0)
 
 # point estimates
 #----------------
@@ -402,11 +418,3 @@ which.max(colSums((dat == 15) | (dat == 16))) # bed days peak on day...
 
 sum(ae_visits) # A&E visits
 sum(ambulance_trip) # ambulance trips
-
-# output for line charts
-#-----------------------
-
-line_charts <- rbind(ds2[c(2, 5:7),], deaths = deaths, ae = colSums(ae_visits), ambulance = colSums(ambulance_trip))
-
-
-
