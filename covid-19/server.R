@@ -34,8 +34,6 @@ set.seed(34) # this means that the results are replicable (i.e. random values co
 #-----------
 
 # individuals
-
-proportion_vulnerable <- 0.50
 all_protect <- F # if T, everyone is offered protect regardless of vulnerability
 
 # disease and intervention
@@ -73,12 +71,6 @@ cfr_community <- c(0.0001, 0.005, 0.025, 0.1)
 rr_vulnerable <- 7 # risk ratio for vulnerable people
 rr_CARE <- 0.5 # risk ratio for mild and moderate cases in covid CARE
 
-# covid community incidence
-peak_day <- 40
-outbreak_duration <- 90 # should be shorter than model duration
-covid_attack_hostel <- 0.8 # anything less than 1
-covid_attack_rough_sleepers <- 0.5 # anything less than 1
-PROTECT_incidence_fraction <- 1/2 # incidence of covid & ILI in PROTECT is x * hostel rate
 B <- 1.75 # parameter for 'shape' of curve (not much value in changing)
 
 
@@ -258,13 +250,26 @@ shinyServer(function(input, output) {
   })
   
   plots <- reactive({
-    # inputs
+    #-----------------------
+    # Inputs
+    #-----------------------
+    
+    # epidemic parameters
     peak_day <- input$peak_day
     total_days <- input$total_days
+    outbreak_duration <- total_days
+    
+    # covid community incidence
+    covid_attack_hostel <- input$covid_attack_hostel #0.8 # anything less than 1
+    covid_attack_rough_sleepers <- input$covid_attack_rough_sleepers #0.5 # anything less than 1
+    PROTECT_incidence_fraction <- input$PROTECT_incidence_fraction #1/2 # incidence of covid & ILI in PROTECT is x * hostel rate
+    
+    # population
     hostel_population <- input$hostel_population
     rough_sleeping_population <- input$rough_sleeping_population
     n <- hostel_population + rough_sleeping_population
     type <- c(rep(1, hostel_population), rep(2, rough_sleeping_population))
+    proportion_vulnerable <- input$proportion_vulnerable
     
     # main code
     out <- main.function(total_days,hostel_population,rough_sleeping_population,proportion_vulnerable,
