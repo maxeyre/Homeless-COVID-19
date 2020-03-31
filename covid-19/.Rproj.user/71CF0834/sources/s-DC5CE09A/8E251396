@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585594821251.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8E251396",
+    "lastKnownWriteTime" : 1585417547,
+    "last_content_update" : 1585417547,
+    "path" : "~/Documents/4. Other projects/COVID-19/Data visualisation/shinyapp/ui.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "164,43",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

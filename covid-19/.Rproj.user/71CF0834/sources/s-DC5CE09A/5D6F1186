@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585593371709.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "5D6F1186",
+    "lastKnownWriteTime" : 1585496250,
+    "last_content_update" : 1585496250,
+    "path" : "~/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/57C5A20C-3BA9-4ED7-9D93-02F0FE9F86BB/covid_model9.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "232,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

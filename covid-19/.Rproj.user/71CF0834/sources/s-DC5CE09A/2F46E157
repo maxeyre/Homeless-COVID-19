@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585585340582.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2395045026",
+    "id" : "2F46E157",
+    "lastKnownWriteTime" : 1585647261,
+    "last_content_update" : 1585647261671,
+    "path" : "~/Documents/4. Other projects/care_protect/covid-19/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+        "cursorPosition" : "25,33",
+        "scrollLine" : "8"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

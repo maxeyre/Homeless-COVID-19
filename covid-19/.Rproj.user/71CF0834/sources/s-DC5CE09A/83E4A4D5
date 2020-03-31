@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585592609215.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "83E4A4D5",
+    "lastKnownWriteTime" : 1585646452,
+    "last_content_update" : 1585646452746,
+    "path" : "~/Documents/4. Other projects/care_protect/covid_model10.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "281,0",
+        "scrollLine" : "267"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
