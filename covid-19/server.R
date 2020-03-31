@@ -245,10 +245,6 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
 # Define server logic 
 shinyServer(function(input, output) {
   
-  output$hostel <- reactive({
-    input$hostel_population
-  })
-  
   plots <- reactive({
     #-----------------------
     # Inputs
@@ -256,10 +252,8 @@ shinyServer(function(input, output) {
     
     # epidemic parameters
     peak_day <- input$peak_day
-    total_days <- input$total_days
-    outbreak_duration <- total_days
-    
-    # covid community incidence
+    outbreak_duration <- input$outbreak_duration
+    total_days <- outbreak_duration +20
     covid_attack_hostel <- input$covid_attack_hostel #0.8 # anything less than 1
     covid_attack_rough_sleepers <- input$covid_attack_rough_sleepers #0.5 # anything less than 1
     PROTECT_incidence_fraction <- input$PROTECT_incidence_fraction #1/2 # incidence of covid & ILI in PROTECT is x * hostel rate
