@@ -33,17 +33,6 @@ set.seed(34) # this means that the results are replicable (i.e. random values co
 # population
 #-----------
 
-# individuals
-all_protect <- F # if T, everyone is offered protect regardless of vulnerability
-
-# disease and intervention
-#-------------------------
-
-# testing (if false, 'time_to_results' defaults to duration of CARE, and after CARE vulnerable population is offered PROTECT rather than discharged to community)
-testing <- T
-
-# PROTECT capacity
-max_protect <- NA # NA for no maximum
 
 # timings (in days)
 time_to_results <- 2 # time to get result (after which negative cases are returned to community)
@@ -264,6 +253,15 @@ shinyServer(function(input, output) {
     n <- hostel_population + rough_sleeping_population
     type <- c(rep(1, hostel_population), rep(2, rough_sleeping_population))
     proportion_vulnerable <- input$proportion_vulnerable
+    
+    # intervention parameters
+    all_protect <- input$all_protect # F if T, everyone is offered protect regardless of vulnerability
+    ifelse(all_protect=="TRUE", all_protect <- TRUE, all_protect <- FALSE)
+    
+    testing <- input$testing #T # testing (if false, 'time_to_results' defaults to duration of CARE, and after CARE vulnerable population is offered PROTECT rather than discharged to community)
+    ifelse(testing=="TRUE", testing <- TRUE, testing <- FALSE)
+    
+    max_protect <- NA # UNSURE HOW TO INCLUDE THIS # NA for no maximum; # PROTECT capacity
     
     # main code
     out <- main.function(total_days,hostel_population,rough_sleeping_population,proportion_vulnerable,
