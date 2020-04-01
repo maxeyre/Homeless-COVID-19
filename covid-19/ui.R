@@ -24,6 +24,8 @@ shinyUI(fluidPage(
                         # interventions
                         radioButtons("all_protect", "Everyone offered PROTECT",choices=c('Yes'='TRUE','No'='FALSE')),
                         radioButtons("testing", "Testing (*add more detail*)",choices=c('Yes'='TRUE','No'='FALSE')),
+                        sliderInput("duration_CARE", label = "Duration of CARE (days)", min = 0, max = 30, value = 14),
+                        sliderInput("duration_admission", label = "Time spent in hospital/ITU (days)", min = 0, max = 30, value = 12),
                         
                         # timings (average)
                         sliderInput("time_to_results", label = "Time to results (days)", min = 0, max = 30, value = 2),
@@ -31,6 +33,12 @@ shinyUI(fluidPage(
                         sliderInput("admission_day", label = "Time to hospital/ITU admission (days)", min = 0, max = 30, value = 7),
                         sliderInput("died_covid_day", label = "Time to death due to COVID-19 (days) ", min = 0, max = 90, value = 19),
                         sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15),
+                        
+                        # durations (average)
+                        sliderInput("duration_PROTECT_recruitment", label = "Time to self discharge (days)", min = 0, max = 30, value = 4),
+                        
+                        sliderInput("died_covid_day", label = "Time to death due to COVID-19 (days) ", min = 0, max = 90, value = 19),
+                        sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15)
                         ),
     
   mainPanel(

@@ -260,7 +260,7 @@ shinyServer(function(input, output) {
     ae_prob <- 1/duration_covid # daily probability of A&E during COVID illness: average 1 visit per illness
     
     # durations (days)
-    duration_CARE <- 14
+    duration_CARE <- input$duration_CARE 
     duration_admission <- 12
     duration_PROTECT_recruitment <- 28 # PROTECT population recruited steadily over this period (days)
     
