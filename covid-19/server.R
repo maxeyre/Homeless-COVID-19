@@ -30,7 +30,7 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
                           all_protect,testing,max_protect,time_to_results,self_discharge_day,admission_day,
                           died_covid_day,duration_covid,duration_CARE,duration_admission,duration_PROTECT_recruitment,
                           probability_identified,accept_CARE,accept_PROTECT,self_discharge_risk,ili_incidence,ae_prob,
-                          covid_severity,cfr_community,rr_vulnerable,rr_CARE,peak_day,outbreak_duration,covid_attack_hostel,
+                          covid_severity,cfr_community,rr_vulnerable,cfr,rr_CARE,peak_day,outbreak_duration,covid_attack_hostel,
                           covid_attack_rough_sleepers,PROTECT_incidence_fraction,B){
   
   #-----------------------
@@ -258,7 +258,7 @@ shinyServer(function(input, output) {
                          all_protect,testing,max_protect,time_to_results,self_discharge_day,admission_day,
                          died_covid_day,duration_covid,duration_CARE,duration_admission,duration_PROTECT_recruitment,
                          probability_identified,accept_CARE,accept_PROTECT,self_discharge_risk,ili_incidence,ae_prob,
-                         covid_severity,cfr_community,rr_vulnerable,rr_CARE,peak_day,outbreak_duration,covid_attack_hostel,
+                         covid_severity,cfr_community,rr_vulnerable,cfr,rr_CARE,peak_day,outbreak_duration,covid_attack_hostel,
                          covid_attack_rough_sleepers,PROTECT_incidence_fraction,B)
     
     dat <- out[[1]]
@@ -302,7 +302,8 @@ shinyServer(function(input, output) {
       seq(0, tm * nticks, tm)
     }                  
     
-    # Tab 1 - epidemic curve  new_cases_total <- colSums((dat == 3) | (dat == 7))
+    # Tab 1 - epidemic curve  
+    new_cases_total <- colSums((dat == 3) | (dat == 7))
     new_cases_rough_sleepers <- colSums(((dat == 3) | (dat == 7)) & type == 2)
     cum_inc <- cumsum(new_cases_total) / n
     ymax <- ceiling(max(new_cases_total)/50) * 50

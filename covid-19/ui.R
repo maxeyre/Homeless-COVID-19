@@ -19,13 +19,13 @@ shinyUI(fluidPage(
                       titlePanel("CARE-PROTECT COVID-19 Modelling Tool", windowTitle = "CARE-PROTECT COVID-19 Modelling Tool"),
                       
                       h5("Please see the About page for a definition of all modelling parameters"),
-                      
+                      br(),
+                      h4("Population parameters"),
                       fluidRow(
-                               h4("Population parameters"),
                         column(2,
                                numericInput("hostel_population", label = "Hostel population", value = 8784, max= 50000)
                         ),
-                        column(2, offset=1,
+                        column(2,
                                numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 1136, max= 50000)
                         ),
                         column(2,
@@ -48,12 +48,7 @@ shinyUI(fluidPage(
                         ),
                       ),
                       fluidRow(
-                        column(2,
-                               h4("Attack rates"),
-                               sliderInput("covid_attack_hostel", label = "Attack rate in hostels", min = 0, max = 1, value = 0.8),
-                               sliderInput("covid_attack_rough_sleepers", label = "Attack rate in rough sleepers", min = 0, max = 1, value = 0.5)
-                        ),
-                        column(9,
+                        column(12,
                                mainPanel(
                                  tabsetPanel(type = "tabs",
                                              tabPanel("Epidemic curve",  
@@ -72,9 +67,9 @@ shinyUI(fluidPage(
                                                       h3("CARE-PROTECT usage"),
                                                       plotOutput("plot_CAREPROTECT")
                                              ),
-                                             tabPanel("5th GRAPH", 
-                                                      h3("TITLE"),
-                                                      plotOutput("plot_5THGRAPH")
+                                             tabPanel("Deaths", 
+                                                      h3("Deaths"),
+                                                      plotOutput("plot_deaths")
                                              ),
                                              h6("Add site visit counter")
                                  )
@@ -100,12 +95,13 @@ shinyUI(fluidPage(
                                sliderInput("time_to_results", label = "Time to results (days)", min = 0, max = 30, value = 2),
                                sliderInput("self_discharge_day", label = "Time to self discharge (days)", min = 0, max = 30, value = 4),
                                sliderInput("died_covid_day", label = "Time to death due to COVID-19 (days) ", min = 0, max = 90, value = 19),
-                               sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15)
+                               sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15),
+                               sliderInput("covid_attack_hostel", label = "Attack rate in hostels", min = 0, max = 1, value = 0.8),
+                               sliderInput("covid_attack_rough_sleepers", label = "Attack rate in rough sleepers", min = 0, max = 1, value = 0.5)
+                               ),
                         )
-                      )
+                      ),
                         
-                      
-  ),
   tabPanel("Guidance",
            titlePanel("CARE-PROTECT COVID-19 Modelling Tool", windowTitle = "CARE-PROTECT COVID-19 Modelling Tool"),
            h3("Who is this model for?"),
