@@ -32,6 +32,7 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
                           probability_identified,accept_CARE,accept_PROTECT,self_discharge_risk,ili_incidence,ae_prob,
                           covid_severity,cfr_community,rr_vulnerable,rr_CARE,peak_day,outbreak_duration,covid_attack_hostel,
                           covid_attack_rough_sleepers,PROTECT_incidence_fraction,B){
+  
   #-----------------------
   # calculate model inputs 
   #-----------------------
@@ -47,11 +48,10 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
   cpe[all_protect] <- 1
   
   # case fatality rates
-  cfr_community <- rbind(cfr_community, cfr_community * rr_vulnerable)
+  cfr_community <- rbind(cfr, cfr * rr_vulnerable)
   cfr_community <- pmin(cfr_community, 1)
-  cfr_CARE <- c(cfr_community[1,1:2] * rr_CARE, cfr_community[1,3:4])
-  cfr_CARE <- rbind(cfr_CARE, cfr_CARE * rr_vulnerable)
-  cfr_CARE <- pmin(cfr_CARE, 1)
+  cfr_CARE <- cfr_community
+  cfr_CARE[,2:3] <- rr_CARE * cfr_CARE[,2:3]
   
   # incidence of ili in PROTECT (same multiplier / fraction of community incidence as used in COVID)
   ili_incidence_PROTECT <- ili_incidence * PROTECT_incidence_fraction
@@ -118,7 +118,7 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
     p.died.community <- rbinom(n, 1, mortality_community) == 1
     p.died.CARE <- rbinom(n, 1, mortality_CARE) == 1
     p.self.discharge <- rbinom(n, 1, self_discharge_risk) == 1
-    p.ref.CARE <- rbinom(n, 1, accept_CARE) == 1
+    p.ref.CARE <- (rbinom(n, 1, accept_CARE) == 1) & (severity != 1)
     p.ref.PROTECT <- (rbinom(n, 1, accept_PROTECT) == 1) * !protect_full
     p.new.covid <- rbinom(n, 1, covid_incidence[type, day]) == 1 # incidence depends on both rough sleeper/hostel status, and day
     p.new.ili <- rbinom(n, 1, ili_incidence) == 1 & (!p.new.covid)
@@ -174,10 +174,10 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
     status[(sy == 16) & q.admission.start == 15] <- 12
     
     # deaths
-    status[(sy == 4) & p.died.community & (q.cov.died %in% c(3, 7))] <- 17
-    status[(sy == 11) & p.died.CARE & (q.cov.died %in% c(3, 7))] <- 17
-    status[(sy == 14) & p.died.CARE & (q.cov.died %in% c(3, 7))] <- 17
-    status[(sy == 16) & p.died.CARE & (q.cov.died %in% c(3, 7))] <- 17
+    day_of_death <- q.cov.died %in% c(3, 7)
+    status[(sy == 4) & p.died.community & day_of_death] <- 17
+    status[(sy %in% c(10, 11)) & p.died.CARE & day_of_death] <- 17
+    status[(sy %in% (13:16)) & p.died.CARE & day_of_death] <- 17
     
     return(status)
     
@@ -210,12 +210,11 @@ shinyServer(function(input, output) {
     covid_attack_rough_sleepers <- input$covid_attack_rough_sleepers # anything less than 1
     PROTECT_incidence_fraction <- input$PROTECT_incidence_fraction # incidence of covid & ILI in PROTECT is x * hostel rate
     # case fatality and hospitalisation rates
-    covid_severity <- c(0.65, 0.2, 0.1, 0.05) # mild / moderate / severe / critical. should sum to 1
-    cfr_community <- c(0.0001, 0.005, 0.025, 0.1)
-    rr_vulnerable <- 7 # risk ratio for vulnerable people
+    covid_severity <- c(0.2, 0.52, 0.125, 0.125, 0.03) # asymptomatic / mild / moderate / severe / critical. should sum to 1
+    cfr <- c(0, 0.0001, 0.005, 0.025, 0.1) # for non-vulnerable, by severity
+    rr_vulnerable <- 9 # risk ratio for vulnerable people
     rr_CARE <- 0.5 # risk ratio for mild and moderate cases in covid CARE
     B <- 1.75 # LEAVING THIS AS FIXED; parameter for 'shape' of curve (not much value in changing)
-    
     
     # risks and rates
     probability_identified <- input$probability_identified # proportion of population identified
@@ -360,8 +359,8 @@ shinyServer(function(input, output) {
     fpl(rbind(ds2[6:7,], ae = colSums(ae_visits), amb = colSums(ambulance_trip)))
     p3 <- recordPlot()
     
-
-   # Tab 4 - CARE & PROTECT use 
+    
+    # Tab 4 - CARE & PROTECT use 
     cols <- brewer.pal(6, 'Dark2')
     
     par(xpd = NA, mar = c(4, 4, 1, 8))
@@ -400,7 +399,7 @@ shinyServer(function(input, output) {
   # Tab 3 plot
   output$plot_HealthcareUse <- renderPlot({
     plots()[[3]]
-    })
+  })
   
   # Tab 4 plot
   output$plot_CAREPROTECT <- renderPlot({
@@ -436,4 +435,3 @@ shinyServer(function(input, output) {
   })
   
 })
-
