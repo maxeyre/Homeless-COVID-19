@@ -1,5 +1,15 @@
 # ui.R
 
+# code for editing CSS directly (add id="first" in fluidRow)
+# tags$style(HTML("
+#       #first {
+#           border: 2px groove gray;
+#       }
+#       #second {
+#           border: 2px dashed blue;
+#       }
+#     ")),
+
 library(shiny)
 
 # Define UI 
@@ -7,53 +17,71 @@ shinyUI(fluidPage(
   navbarPage("Menu",
              tabPanel("Model",
                       titlePanel("CARE-PROTECT COVID-19 Modelling Tool", windowTitle = "CARE-PROTECT COVID-19 Modelling Tool"),
+                      
                       h5("Please see the About page for a definition of all modelling parameters"),
+                      
                       fluidRow(
-                        column(3,
-                               h4("Key parameters"),
-                               sliderInput("covid_attack_hostel", label = "Attack rate in hostels", min = 0, max = 1, value = 0.8),
-                               sliderInput("covid_attack_rough_sleepers", label = "Attack rate in rough sleepers", min = 0, max = 1, value = 0.5),
-                               sliderInput("PROTECT_incidence_fraction", label = "% reduction in incidence due to PROTECT", min = 0, max = 1, value = 0.5),
-                               sliderInput("probability_identified", label = "Prop. identified for CARE/PROTECT", min = 0, max = 1, value = 0.7),
-                               sliderInput("self_discharge_risk", label = "Risk of self discharge (from CARE and PROTECT)", min = 0, max = 1, value = 0.33),
-                               sliderInput("accept_CARE", label = "Prop. accepting CARE/PROTECT", min = 0, max = 1, value = 0.7)
-                               ),
-                        
-                        column(3,
-                               h4("Population"),
-                               numericInput("hostel_population", label = "Hostel population", value = 8784, max= 50000),
-                               numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 1136, max= 50000),
+                               h4("Population parameters"),
+                        column(2,
+                               numericInput("hostel_population", label = "Hostel population", value = 8784, max= 50000)
+                        ),
+                        column(2, offset=1,
+                               numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 1136, max= 50000)
+                        ),
+                        column(2,
                                sliderInput("proportion_vulnerable", label = "Proportion vulnerable", min = 0, max = 1, value = 0.5)
-                               )
+                        )
+                      ),
+                      h4("PROTECT/CARE parameters"),
+                      fluidRow(
+                        column(2,
+                               sliderInput("PROTECT_incidence_fraction", label = "% reduction in incidence due to PROTECT", min = 0, max = 1, value = 0.5)
                         ),
-                        fluidRow(
-                          column(10,
-                                 mainPanel(
-                                   tabsetPanel(type = "tabs",
-                                               tabPanel("Epidemic curve",  
-                                                        h3("Epidemic curve"),
-                                                        plotOutput("plot_EpiCurve")
-                                               ),
-                                               tabPanel("Statuses",
-                                                        h3("Stacked graph of statuses"),
-                                                        plotOutput("plot_Stacked")
-                                               ),
-                                               tabPanel("Healthcare use", 
-                                                        h3("Healthcare use"),
-                                                        plotOutput("plot_HealthcareUse")
-                                               ),
-                                               tabPanel("CARE-PROTECT", 
-                                                        h3("CARE-PROTECT usage"),
-                                                        plotOutput("plot_CAREPROTECT"),
-                                               ),
-                                               tabPanel("5th GRAPH", 
-                                                        h3("TITLE"),
-                                                        plotOutput("plot_5THGRAPH")
-                                   ),
-                                   h6("Add site visit counter")
+                        column(2,
+                               sliderInput("probability_identified", label = "Prop. identified for CARE/PROTECT", min = 0, max = 1, value = 0.7)
+                        ),
+                        column(2,
+                               sliderInput("self_discharge_risk", label = "Risk of self discharge (from CARE and PROTECT)", min = 0, max = 1, value = 0.33)
+                        ),
+                        column(2,
+                               sliderInput("accept_CARE", label = "Prop. accepting CARE/PROTECT", min = 0, max = 1, value = 0.7)
+                        ),
+                      ),
+                      fluidRow(
+                        column(2,
+                               h4("Attack rates"),
+                               sliderInput("covid_attack_hostel", label = "Attack rate in hostels", min = 0, max = 1, value = 0.8),
+                               sliderInput("covid_attack_rough_sleepers", label = "Attack rate in rough sleepers", min = 0, max = 1, value = 0.5)
+                        ),
+                        column(9,
+                               mainPanel(
+                                 tabsetPanel(type = "tabs",
+                                             tabPanel("Epidemic curve",  
+                                                      h3("Epidemic curve"),
+                                                      plotOutput("plot_EpiCurve")
+                                             ),
+                                             tabPanel("Statuses",
+                                                      h3("Stacked graph of statuses"),
+                                                      plotOutput("plot_Stacked")
+                                             ),
+                                             tabPanel("Healthcare use", 
+                                                      h3("Healthcare use"),
+                                                      plotOutput("plot_HealthcareUse")
+                                             ),
+                                             tabPanel("CARE-PROTECT", 
+                                                      h3("CARE-PROTECT usage"),
+                                                      plotOutput("plot_CAREPROTECT")
+                                             ),
+                                             tabPanel("5th GRAPH", 
+                                                      h3("TITLE"),
+                                                      plotOutput("plot_5THGRAPH")
+                                             ),
+                                             h6("Add site visit counter")
                                  )
-                          )
+                               )
+                        )
                         ),
+                        
                       fluidRow(
                         column(4,
                                h4("Intervention parameters"),
