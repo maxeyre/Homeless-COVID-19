@@ -76,7 +76,7 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
   PROTECT_referral_day <- sample(1:duration_PROTECT_recruitment, n, replace = T)
   
   # covid severity
-  severity <- sample(1:4, n, replace = T, prob = covid_severity)
+  severity <- sample(1:(length(covid_severity)), n, replace = T, prob = covid_severity)
   
   # select mortality risk
   mortality_community <- cfr_community[cbind(vulnerable + 1, severity)]
@@ -164,12 +164,12 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
     status[(sy == 9) & p.self.discharge & (q.sd == 8)] <- 1
     
     # hospital admissions
-    status[(sy == 4) & (severity %in% c(2, 3)) & (q.admission %in% c(3, 7))] <- 13
-    status[(sy == 11) & (severity == 3) & (q.admission %in% c(3, 7))] <- 13
+    status[(sy == 4) & (severity %in% 3:4) & (q.admission %in% c(3, 7))] <- 13
+    status[(sy == 11) & (severity == 4) & (q.admission %in% c(3, 7))] <- 13
     status[sy == 13] <- 14
     status[(sy == 14) & q.admission.start == 13] <- 12
-    status[(sy == 4) & (severity == 4) & (q.admission %in% c(3, 7))] <- 15
-    status[(sy == 11) & (severity == 4) & (q.admission %in% c(3, 7))] <- 15
+    status[(sy == 4) & (severity == 5) & (q.admission %in% c(3, 7))] <- 15
+    status[(sy == 11) & (severity == 5) & (q.admission %in% c(3, 7))] <- 15
     status[sy == 15] <- 16
     status[(sy == 16) & q.admission.start == 15] <- 12
     
@@ -198,6 +198,7 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
 shinyServer(function(input, output) {
   
   plots <- reactive({
+    
     #-----------------------
     # Inputs
     #-----------------------
