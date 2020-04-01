@@ -276,8 +276,8 @@ shinyServer(function(input, output) {
     
     # number at each status by day
     #-----------------------------
-    ds <- t(sapply(1:17, function(x) colSums(dat == x))) # daily summary
     
+    ds <- t(sapply(1:17, function(x) colSums(dat == x))) # daily summary
     ds2 <- rbind(`Community: susceptible` = colSums(ds[1:2,]),
                  PROTECT = colSums(ds[5:7,]),
                  `Community: recovered` = ds[12,],
@@ -286,23 +286,27 @@ shinyServer(function(input, output) {
                  `Admitted to hospital` = colSums(ds[13:14,]),
                  ITU = colSums(ds[15:16,]),
                  Died = ds[17,])
-    
-    cols <- brewer.pal(nrow(ds2), 'Paired')
-    
+    ds3 <- apply(ds2, 2, cumsum)
+    ds3 <- rbind(0, ds3)    
     any_hospital <- colSums(ds[13:16,])
     
-    #
-    #-------------------------
+    # plots
+    #------
     
-    ds3 <- apply(ds2, 2, cumsum)
-    ds3 <- rbind(0, ds3)
+    # function for making y-axes
+    yaxt <- c(outer(c(1, 2.5, 5), 10^(0:6), '*')) 
+    yaxt <- yaxt[yaxt != 2.5]
+    yxf <- function(ymax, tk = 5, type = 'next') { 
+      tm <- yaxt[which.min(abs(yaxt - ymax / tk))]
+      nticks <- if (type == 'next') ceiling(ymax / tm) else floor(ymax / tm)
+      seq(0, tm * nticks, tm)
+    }                  
     
-    # Tab 1 - epidemic curve
-    new_cases_total <- colSums((dat == 3) | (dat == 7))
+    # Tab 1 - epidemic curve  new_cases_total <- colSums((dat == 3) | (dat == 7))
     new_cases_rough_sleepers <- colSums(((dat == 3) | (dat == 7)) & type == 2)
     cum_inc <- cumsum(new_cases_total) / n
     ymax <- ceiling(max(new_cases_total)/50) * 50
-    par(xpd = NA, mar = c(5, 5, 1, 5))
+    par(xpd = NA, mar = c(4, 5, 1, 15))
     plot(1, type = 'n', xlim = c(0, total_days + 1), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'New cases')
     rect(0, 0, total_days + 1, ymax)
     title(xlab = 'Week', line = 2.5)
@@ -310,80 +314,83 @@ shinyServer(function(input, output) {
     rect(0:total_days, 0, 1:(total_days + 1), new_cases_rough_sleepers, border = NA, col = 'grey60')
     lines(0:total_days + 0.5, cum_inc * ymax, col = 'white', lwd = 5)
     lines(0:total_days + 0.5, cum_inc * ymax, col = 'red')
-    axis(2, 0:(ymax/50) * 50, pos = 0, las = 2)
+    axis(2, yxf(ymax, type = 'previous'), pos = 0, las = 2)
     axis(4, 0:5/5 * ymax, paste0(0:5/5 * 100, '%'), las = 2, pos = total_days + 1, col = 'red', col.axis = 'red')
     axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
     segments(0, 0, total_days + 1)
-    text(total_days + total_days/4, ymax/2, 'Cumulative incidence', srt = 270, col = 'red')
+    text(total_days * 1.35, ymax/2, 'Cumulative incidence', srt = 270, col = 'red')
     text(total_days - total_days / 20, max(cum_inc + 0.05) * ymax, paste0(round(max(cum_inc) * 100, 0), '%'), col = 'red')
-    xs <- c(0.7, 0.97)
-    ys <- c(0.2, 0.25, 0.3)
+    xs <- c(1.45, 1.9)
+    ys <- c(0.9, 0.95, 1)
     rect(total_days * xs[1], ymax*ys[1:2], total_days * xs[2], ymax*ys[2:3], col = c('grey60', 'grey80'), border = NA)
     text(total_days * mean(xs), ymax*(ys[1:2] + diff(ys)/2), c('Rough sleepers', 'Total'), cex = 0.8, col = c('white', 'black'))
+    
     p1 <- recordPlot()
     
     # Tab 2 - stacked plot
-    par(mar = c(4, 5, 1, 12))
+    cols <- brewer.pal(nrow(ds2), 'Paired')
+    par(mar = c(4, 5, 1, 15), xpd = NA)
     plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, n), axes = F, xlab = NA, ylab = NA)
     for(i in 1:nrow(ds2)) {
       polygon(c(0:total_days, total_days:0), c(ds3[i+1,], rev(ds3[i,])), col = cols[i])
     }
     axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
     segments(0, 0, total_days + 1)
-    axis(2, pos = 0, las = 2)
+    axis(2, yxf(n, type = 'previous'), pos = 0, las = 2)
     ys <- seq(n * 0.25, n * 0.75, length.out = length(cols) + 1)
-    rect(total_days * 1.1, ys[-length(ys)], total_days * 1.2, ys[-1], col = cols)
-    text(total_days * 1.25, ys[-length(ys)] + diff(ys) / 2, rownames(ds2), adj = 0)
+    rect(total_days * 1.07, ys[-length(ys)], total_days * 1.14, ys[-1], col = cols)
+    text(total_days * 1.19, ys[-length(ys)] + diff(ys) / 2, rownames(ds2), adj = 0)
     title(xlab = 'Week', line = 2.5)
     title(ylab = 'Population', line = 4)
+    
     p2 <- recordPlot()
     
-    # Tab 3 - healthcare use
-    # ambulance, A&E, hospital, ITU, CARE, PROTECT
-    cols <- brewer.pal(6, 'Dark2')
-    
-    par(xpd = NA, mar = c(4, 4, 1, 8))
-    
-    fpl <- function(d) {
-      plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, max(d)), xlab = NA, ylab = NA, axes = F)
-      rect(0, 0, total_days, max(d))
-      for (i in 1:nrow(d)) lines(0:total_days, d[i,], col = cols[i])
+    # Tab 3 - healthcare use    
+    cols <- brewer.pal(4, 'Set1')
+    fpl <- function(d, yrange = 0.15) {
+      ymax <- max(d) * 1.1
+      plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, ymax), xlab = NA, ylab = NA, axes = F)
+      for (i in 1:nrow(d)) lines(0:total_days, d[i,], col = cols[i], lwd = 2)
       axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
       segments(0, 0, total_days + 1)
-      axis(2, pos = 0, las = 2)
-      ys <- seq(max(d) * 0.25, max(d) * 0.75, length.out = nrow(d))
-      segments(total_days * 1.1, ys, total_days * 1.2, ys, col = cols)
+      axis(2, yxf(ymax, type = 'previous'), pos = 0, las = 2)
+      rect(0, 0, total_days, ymax)
+      ys <- seq(ymax * (0.5-yrange), ymax * (0.5+yrange), length.out = nrow(d))
+      segments(total_days * 1.1, ys, total_days * 1.2, ys, col = cols, lwd = 2)
       text(total_days * 1.25, ys, row.names(d), adj = 0)
+      title(xlab = 'Week', line = 2.5)
+      title(ylab = 'Number', line = 3.5)
     }
     
-    par(mar = c(4, 4, 1, 12))
-    fpl(rbind(ds2[6:7,], ae = colSums(ae_visits), amb = colSums(ambulance_trip)))
+    par(mar = c(4, 5, 1, 15), xpd = NA)
+    fpl(rbind(ds2[6:7,], `A&E visits` = colSums(ae_visits), `Ambulance journeys` = colSums(ambulance_trip)))
+    
     p3 <- recordPlot()
     
+    # Tab 4 - CARE & PROTECT use     
+    par(mar = c(4, 5, 1, 15), xpd = NA)
+    fpl(ds2[c(5, 2),], yrange = 0.05)
     
-    # Tab 4 - CARE & PROTECT use 
-    cols <- brewer.pal(6, 'Dark2')
-    
-    par(xpd = NA, mar = c(4, 4, 1, 8))
-    
-    fpl <- function(d) {
-      plot(1, type = 'n', xlim = c(0, total_days), ylim = c(0, max(d)), xlab = NA, ylab = NA, axes = F)
-      rect(0, 0, total_days, max(d))
-      for (i in 1:nrow(d)) lines(0:total_days, d[i,], col = cols[i])
-      axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
-      segments(0, 0, total_days + 1)
-      axis(2, pos = 0, las = 2)
-      ys <- seq(max(d) * 0.25, max(d) * 0.75, length.out = nrow(d))
-      segments(total_days * 1.1, ys, total_days * 1.2, ys, col = cols)
-      text(total_days * 1.25, ys, row.names(d), adj = 0)
-    }
-    
-    par(mar = c(4, 4, 1, 12))
-    fpl(ds2[c(2, 5),])
     p4 <- recordPlot()
+        
+    # Tab 5 - deaths
+    deaths <- (cbind(0, dat[,-ncol(dat)]) != 17) & (dat == 17)
+    deaths <- colSums(deaths)
+    ymax <- max(deaths)
+    par(xpd = NA, mar = c(4, 5, 1, 1))
+    plot(1, type = 'n', xlim = c(0, total_days + 1), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'Deaths')
+    rect(0:total_days, 0, 1:(total_days+1), deaths, col = "#8DA0CB", border = NA)
+    axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
+    segments(0, 0, total_days + 1)
+    rect(0, 0, total_days+1, ymax)
+    axis(2, yxf(ymax, type = 'previous'), pos = 0, las = 2)
+    title(xlab = 'Week', line = 2.5)
+    text(total_days * 0.05, ymax * 0.95, paste0('Total = ', sum(deaths)), adj = 0)
     
-    p.list <- list(p1,p2,p3,p4)
-    
+    p5 <- recordPlot()
+                   
+    p.list <- list(p1,p2,p3,p4,p5)
+               
     return(p.list)
   })
   
@@ -405,6 +412,11 @@ shinyServer(function(input, output) {
   # Tab 4 plot
   output$plot_CAREPROTECT <- renderPlot({
     plots()[[4]]
+  })
+            
+  # Tab 5 plot
+  output$plot_deaths <- renderPlot({
+    plots()[[5]]
   })
   
   # Point estimates
