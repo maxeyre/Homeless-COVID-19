@@ -34,25 +34,13 @@ set.seed(34) # this means that the results are replicable (i.e. random values co
 #-----------
 
 
-# timings (in days)
-time_to_results <- 2 # time to get result (after which negative cases are returned to community)
-self_discharge_day <- 4
-admission_day <- 7 # to hospital or ITU
-died_covid_day <- 19
-duration_covid <- 15 # day of recovery (for those not hospitalised)
-
-# durations (days)
-duration_CARE <- 14
-duration_admission <- 12
-duration_PROTECT_recruitment <- 28 # PROTECT population recruited steadily over this period (days)
-
 # risks and rates
 probability_identified <- 0.7 # proportion of population identified
 accept_CARE <- 0.7 # proportion accepting CARE
 accept_PROTECT <- 0.7 # proportion accepting PROTECT
 self_discharge_risk <- 0.33
 ili_incidence <- 6.3/700 # https://bmcinfectdis.biomedcentral.com/articles/10.1186/1471-2334-14-232
-ae_prob <- 1/duration_covid # daily probability of A&E during COVID illness: average 1 visit per illness
+
 
 # case fatality and hospitalisation rates
 covid_severity <- c(0.65, 0.2, 0.1, 0.05) # mild / moderate / severe / critical. should sum to 1
@@ -262,6 +250,19 @@ shinyServer(function(input, output) {
     ifelse(testing=="TRUE", testing <- TRUE, testing <- FALSE)
     
     max_protect <- NA # UNSURE HOW TO INCLUDE THIS # NA for no maximum; # PROTECT capacity
+    
+    # timings (in days)
+    time_to_results <- input$time_to_results # time to get result (after which negative cases are returned to community)
+    self_discharge_day <- input$self_discharge_day
+    admission_day <- input$admission_day # to hospital or ITU
+    died_covid_day <- input$died_covid_day
+    duration_covid <- input$duration_covid # day of recovery (for those not hospitalised)
+    ae_prob <- 1/duration_covid # daily probability of A&E during COVID illness: average 1 visit per illness
+    
+    # durations (days)
+    duration_CARE <- 14
+    duration_admission <- 12
+    duration_PROTECT_recruitment <- 28 # PROTECT population recruited steadily over this period (days)
     
     # main code
     out <- main.function(total_days,hostel_population,rough_sleeping_population,proportion_vulnerable,
