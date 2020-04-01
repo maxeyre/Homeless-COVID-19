@@ -24,18 +24,23 @@ shinyUI(fluidPage(
                         # interventions
                         radioButtons("all_protect", "Everyone offered PROTECT",choices=c('Yes'='TRUE','No'='FALSE')),
                         radioButtons("testing", "Testing (*add more detail*)",choices=c('Yes'='TRUE','No'='FALSE')),
+                        sliderInput("probability_identified", label = "Prop. identified for CARE/PROTECT", min = 0, max = 1, value = 0.7),
                         sliderInput("duration_CARE", label = "Duration of CARE (days)", min = 0, max = 30, value = 14),
-                        sliderInput("duration_admission", label = "Time spent in hospital/ITU (days)", min = 0, max = 30, value = 12),
+                        sliderInput("accept_CARE", label = "Prop. accepting CARE", min = 0, max = 1, value = 0.7),
+                        sliderInput("duration_PROTECT_recruitment", label = "PROTECT recruitment period (days)", min = 0, max = 60, value = 28),
+                        sliderInput("accept_PROTECT", label = "Prop. accepting PROTECT", min = 0, max = 1, value = 0.7),
+                        sliderInput("self_discharge_risk", label = "Risk of self discharge (from hospital, CARE and PROTECT?)", min = 0, max = 1, value = 0.33),
                         
                         # timings (average)
+                        sliderInput("admission_day", label = "Time to hospital/ITU admission (days)", min = 0, max = 30, value = 7),
+                        sliderInput("duration_admission", label = "Time spent in hospital/ITU (days)", min = 0, max = 30, value = 12),
                         sliderInput("time_to_results", label = "Time to results (days)", min = 0, max = 30, value = 2),
                         sliderInput("self_discharge_day", label = "Time to self discharge (days)", min = 0, max = 30, value = 4),
-                        sliderInput("admission_day", label = "Time to hospital/ITU admission (days)", min = 0, max = 30, value = 7),
                         sliderInput("died_covid_day", label = "Time to death due to COVID-19 (days) ", min = 0, max = 90, value = 19),
                         sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15),
                         
                         # durations (average)
-                        sliderInput("duration_PROTECT_recruitment", label = "Time to self discharge (days)", min = 0, max = 30, value = 4),
+                        
                         
                         sliderInput("died_covid_day", label = "Time to death due to COVID-19 (days) ", min = 0, max = 90, value = 19),
                         sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15)
