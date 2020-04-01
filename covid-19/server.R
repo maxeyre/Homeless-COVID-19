@@ -209,13 +209,20 @@ shinyServer(function(input, output) {
     covid_attack_hostel <- input$covid_attack_hostel # anything less than 1
     covid_attack_rough_sleepers <- input$covid_attack_rough_sleepers # anything less than 1
     PROTECT_incidence_fraction <- input$PROTECT_incidence_fraction # incidence of covid & ILI in PROTECT is x * hostel rate
+    # case fatality and hospitalisation rates
+    covid_severity <- c(0.65, 0.2, 0.1, 0.05) # mild / moderate / severe / critical. should sum to 1
+    cfr_community <- c(0.0001, 0.005, 0.025, 0.1)
+    rr_vulnerable <- 7 # risk ratio for vulnerable people
+    rr_CARE <- 0.5 # risk ratio for mild and moderate cases in covid CARE
+    B <- 1.75 # LEAVING THIS AS FIXED; parameter for 'shape' of curve (not much value in changing)
+    
     
     # risks and rates
     probability_identified <- input$probability_identified # proportion of population identified
     accept_CARE <- input$accept_CARE # proportion accepting CARE
     accept_PROTECT <- input$accept_PROTECT  # proportion accepting PROTECT
     self_discharge_risk <- input$self_discharge_risk
-    ili_incidence <- 6.3/700 # LEAVING THIS AS FIXED https://bmcinfectdis.biomedcentral.com/articles/10.1186/1471-2334-14-232
+    ili_incidence <- 6.3/700 # LEAVING THIS AS FIXED; https://bmcinfectdis.biomedcentral.com/articles/10.1186/1471-2334-14-232
     
     # population
     hostel_population <- input$hostel_population
