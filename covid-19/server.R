@@ -199,7 +199,16 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
 
 
 # Define server logic 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
+  
+  
+  observe({
+    val <- input$outbreak_duration
+    # Control the value, min, max, and step.
+    # Step size is 2 when input value is even; 1 when value is odd.
+    updateSliderInput(session, "peak_day", value = val,
+                      min = 0, max = val)
+  })
   
   plots <- reactive({
     
@@ -217,8 +226,8 @@ shinyServer(function(input, output) {
     # case fatality and hospitalisation rates
     covid_severity <- c(0.2, 0.52, 0.125, 0.125, 0.03) # asymptomatic / mild / moderate / severe / critical. should sum to 1
     cfr <- c(0, 0.0001, 0.005, 0.025, 0.1) # for non-vulnerable, by severity
-    rr_vulnerable <- 9 # risk ratio for vulnerable people
-    rr_CARE <- 0.5 # risk ratio for mild and moderate cases in covid CARE
+    rr_vulnerable <- input$rr_vulnerable #9 # risk ratio for vulnerable people
+    rr_CARE <- input$rr_CARE # risk ratio for mild and moderate cases in covid CARE
     B <- 1.75 # LEAVING THIS AS FIXED; parameter for 'shape' of curve (not much value in changing)
     
     # risks and rates
@@ -242,7 +251,8 @@ shinyServer(function(input, output) {
     testing <- input$testing #T # testing (if false, 'time_to_results' defaults to duration of CARE, and after CARE vulnerable population is offered PROTECT rather than discharged to community)
     ifelse(testing=="TRUE", testing <- TRUE, testing <- FALSE)
     
-    max_protect <- NA # UNSURE HOW TO INCLUDE THIS # NA for no maximum; # PROTECT capacity
+    ifelse(input$max_protect_binary=="FALSE", max_protect <- NA, max_protect <- input$max_protect_value)
+     #NA # UNSURE HOW TO INCLUDE THIS # NA for no maximum; # PROTECT capacity
     
     # timings (in days)
     time_to_results <- input$time_to_results # time to get result (after which negative cases are returned to community)
