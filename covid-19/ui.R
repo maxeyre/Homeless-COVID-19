@@ -12,7 +12,7 @@
 
 library(shiny)
 
-region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/homeless_pop.csv?token=ANJMHSCDHPSE7RXHTVLJHHK6QZC7W")
+# region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/homeless_pop.csv?token=ANJMHSCDHPSE7RXHTVLJHHK6QZC7W")
 
 # Define UI 
 shinyUI(fluidPage(
@@ -84,7 +84,7 @@ shinyUI(fluidPage(
                                  )
                           )
                         ),
-                        actionButton("action", label = "Add 'no intervention' results"),
+                        actionButton("action", label = "Add/remove 'no intervention' results"),
                         
                         h3("3. Outputs - Key estimates"),
                         h5("Total deaths: "),
