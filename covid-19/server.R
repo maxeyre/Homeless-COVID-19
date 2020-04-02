@@ -38,6 +38,9 @@ main.function <- function(total_days,hostel_population,rough_sleeping_population
   # calculate model inputs 
   #-----------------------
   
+  # set peak day to <= outbreak duration
+  peak_day <- min(peak_day, outbreak_duration)
+  
   # change time to results if no testing
   time_to_results <- if (testing) time_to_results else duration_CARE
   
