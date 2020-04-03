@@ -99,11 +99,11 @@ shinyUI(fluidPage(
                         
                         h3("3. Outputs - Key estimates"),
                         fluidRow(
-                          column(4,
+                          column(5,
                                  h4("Epidemic overview"),
                                  tableOutput("table_epidemic")
                                  ),
-                          column(4,
+                          column(5,
                                  h4("Healthcare use"),
                                  tableOutput("table_healthcare")
                           )

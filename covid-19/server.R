@@ -473,7 +473,7 @@ shinyServer(function(input, output, session) {
       
     }else{
       
-      #### WITH 'NO INTERVENTION' LINES
+      #### ADDING 'NO INTERVENTION' SCENARIO
       
       #-----------------------
       # Chosen inputs
@@ -569,6 +569,7 @@ shinyServer(function(input, output, session) {
       
       ##### ------------------------------------------------------ ######
       ### ADD IN FOR 'NO INTERVENTION'
+      ##### ------------------------------------------------------ ######
       
       # main code
       out_no_interv <- main.function(total_days,hostel_population,rough_sleeping_population,proportion_vulnerable,
@@ -586,27 +587,30 @@ shinyServer(function(input, output, session) {
       #--------------------------------
       
       covid_in_community_no_interv <- (dat_no_interv == 3) | (dat_no_interv == 4)
-      ae_visits <- covid_in_community * matrix(rbinom(n * (total_days + 1), 1, ae_prob), nrow = n)
-      admitted_via_ae <- (dat_no_interv == 13) | (dat_no_interv == 15)
-      ae_visits <- ae_visits + admitted_via_ae
-      ambulance_trip <- (dat_no_interv == 13) | (dat_no_interv == 15)
+      ae_visits_no_interv <- covid_in_community_no_interv * matrix(rbinom(n * (total_days + 1), 1, ae_prob), nrow = n)
+      admitted_via_ae_no_interv <- (dat_no_interv == 13) | (dat_no_interv == 15)
+      ae_visits <- ae_visits_no_interv + admitted_via_ae_no_interv
+      ambulance_trip_no_interv <- (dat_no_interv == 13) | (dat_no_interv == 15)
       
       # number at each status by day
       #-----------------------------
       
-      ds <- t(sapply(1:17, function(x) colSums(dat == x))) # daily summary
-      ds2 <- rbind(`Community: susceptible` = colSums(ds[1:2,]),
-                   PROTECT = colSums(ds[5:7,]),
-                   `Community: recovered` = ds[12,],
-                   `Community: Covid-19` = colSums(ds[3:4,]),
-                   CARE = colSums(ds[8:11,]),
-                   `Admitted to hospital` = colSums(ds[13:14,]),
-                   ITU = colSums(ds[15:16,]),
-                   Died = ds[17,])
-      ds3 <- apply(ds2, 2, cumsum)
-      ds3 <- rbind(0, ds3)    
-      any_hospital <- colSums(ds[13:16,])
+      ds_no_interv <- t(sapply(1:17, function(x) colSums(dat_no_interv == x))) # daily summary
+      ds2_no_interv <- rbind(`Community: susceptible` = colSums(ds_no_interv[1:2,]),
+                   PROTECT = colSums(ds_no_interv[5:7,]),
+                   `Community: recovered` = ds_no_interv[12,],
+                   `Community: Covid-19` = colSums(ds_no_interv[3:4,]),
+                   CARE = colSums(ds_no_interv[8:11,]),
+                   `Admitted to hospital` = colSums(ds_no_interv[13:14,]),
+                   ITU = colSums(ds_no_interv[15:16,]),
+                   Died = ds_no_interv[17,])
+      ds3_no_interv <- apply(ds2_no_interv, 2, cumsum)
+      ds3_no_interv <- rbind(0, ds3_no_interv)    
+      any_hospital_no_interv <- colSums(ds_no_interv[13:16,])
       
+      ##### ------------------------------------------------------ ######
+      ### END OF 'NO INTERVENTION' CALCULATIONS
+      ##### ------------------------------------------------------ ######
       
       # plots
       #------
@@ -709,35 +713,71 @@ shinyServer(function(input, output, session) {
       p5 <- recordPlot()
       
       #----------------
-      # Outputs estimates for text
+      # Outputs estimates for text (with added comparison without intervention)
       #----------------
       
       estimates_out <- data.frame(Parameter=c("Total COVID-19 cases","Total COVID-19 deaths","Actual cum. attack rate","CFR","Peak no. in CARE","Peak no. in PROTECT",
                                               "Total hospital bed days","Total hospital admissions","Peak no. bed days",
                                               "Day of bed day peak","Total ITU days","Total ITU admissions","Peak no. ITU beds","Day of ITU peak",
-                                              "Total A&E visits","Total ambulance trips"), Estimate = 0)
+                                              "Total A&E visits","Total ambulance trips"),`With intervention`=0,`No intervention`=0)
       
-      estimates_out$Estimate[1] <- as.character(sum(ds[c(3, 4, 7, 10:17), total_days + 1])) # covid cases
-      estimates_out$Estimate[2] <- ds[17, total_days + 1] # died
-      estimates_out$Estimate[3] <- round(sum(ds[c(3, 4, 7, 10:17), total_days + 1]) / n, digits=3) # actual cumulative attack rate
-      estimates_out$Estimate[4] <- round(ds[17, total_days + 1] / sum(ds[c(3, 4, 7, 10:17), total_days + 1]), digits=3)  # CFR
-      estimates_out$Estimate[5] <- max(colSums((dat == 8) | (dat == 9) | (dat == 10) | (dat == 11))) # peak CARE
-      estimates_out$Estimate[6] <- max(colSums((dat == 5) | (dat == 6) | (dat == 7))) # peak PROTECT
+      # Without intervention
+      ## Epidemic overview
+      estimates_out$`With intervention`[1] <- sum(ds[c(3, 4, 7, 10:17), total_days + 1]) # covid cases
+      estimates_out$`With intervention`[2] <- ds[17, total_days + 1] # died
+      estimates_out$`With intervention`[3] <- sum(ds[c(3, 4, 7, 10:17), total_days + 1]) / n # actual cumulative attack rate
+      estimates_out$`With intervention`[4] <- ds[17, total_days + 1] / sum(ds[c(3, 4, 7, 10:17), total_days + 1])  # CFR
+      estimates_out$`With intervention`[5] <- max(colSums((dat == 8) | (dat == 9) | (dat == 10) | (dat == 11))) # peak CARE
+      estimates_out$`With intervention`[6] <- max(colSums((dat == 5) | (dat == 6) | (dat == 7))) # peak PROTECT
+      ## Healthcare use
+      estimates_out$`With intervention`[7] <- sum(dat %in% c(13, 14)) # hospital bed days
+      estimates_out$`With intervention`[8] <- sum(dat == 13) # hospital admissions
+      estimates_out$`With intervention`[9] <- max(colSums((dat == 13) | (dat == 14))) # peak beds
+      estimates_out$`With intervention`[10] <- which.max(colSums((dat == 13) | (dat == 14))) # bed days peak on day...
+      estimates_out$`With intervention`[11] <- sum(dat %in% c(15, 16)) # ITU days
+      estimates_out$`With intervention`[12] <- sum(dat == 15) # ITU admissions
+      estimates_out$`With intervention`[13] <- max(colSums((dat == 15) | (dat == 16))) # peak ITU beds
+      estimates_out$`With intervention`[14]<- which.max(colSums((dat == 15) | (dat == 16))) # ITU beds peak on day...
+      estimates_out$`With intervention`[15] <- sum(ae_visits) # A&E visits
+      estimates_out$`With intervention`[16] <- sum(ambulance_trip) # ambulance trips
       
+      # No intervention
+      ## Epidemic overview
+      estimates_out$`No intervention`[1] <- sum(ds_no_interv[c(3, 4, 7, 10:17), total_days + 1]) # covid cases
+      estimates_out$`No intervention`[2] <- ds_no_interv[17, total_days + 1] # died
+      estimates_out$`No intervention`[3] <- sum(ds_no_interv[c(3, 4, 7, 10:17), total_days + 1]) / n # actual cumulative attack rate
+      estimates_out$`No intervention`[4] <- ds_no_interv[17, total_days + 1] / sum(ds_no_interv[c(3, 4, 7, 10:17), total_days + 1])  # CFR
+      estimates_out$`No intervention`[5] <- max(colSums((dat_no_interv == 8) | (dat_no_interv == 9) | (dat_no_interv == 10) | (dat_no_interv == 11))) # peak CARE
+      estimates_out$`No intervention`[6] <- max(colSums((dat_no_interv == 5) | (dat_no_interv == 6) | (dat_no_interv == 7))) # peak PROTECT
+      ## Healthcare use
+      estimates_out$`No intervention`[7] <- sum(dat_no_interv %in% c(13, 14)) # hospital bed days
+      estimates_out$`No intervention`[8] <- sum(dat_no_interv == 13) # hospital admissions
+      estimates_out$`No intervention`[9] <- max(colSums((dat_no_interv == 13) | (dat_no_interv == 14))) # peak beds
+      estimates_out$`No intervention`[10] <- which.max(colSums((dat_no_interv == 13) | (dat_no_interv == 14))) # bed days peak on day...
+      estimates_out$`No intervention`[11] <- sum(dat_no_interv %in% c(15, 16)) # ITU days
+      estimates_out$`No intervention`[12] <- sum(dat_no_interv == 15) # ITU admissions
+      estimates_out$`No intervention`[13] <- max(colSums((dat_no_interv == 15) | (dat_no_interv == 16))) # peak ITU beds
+      estimates_out$`No intervention`[14]<- which.max(colSums((dat_no_interv == 15) | (dat_no_interv == 16))) # ITU beds peak on day...
+      estimates_out$`No intervention`[15] <- sum(ae_visits_no_interv) # A&E visits
+      estimates_out$`No intervention`[16] <- sum(ambulance_trip_no_interv) # ambulance trips
       
+      # % reduction
+      estimates_out$`% reduction` <- 0
+      estimates_out$`% reduction`[1:2] <- 100*(estimates_out$`No intervention`[1:2]-estimates_out$`With intervention`[1:2])/estimates_out$`No intervention`[1:2]
+      estimates_out$`% reduction`[3:6] <-c(rep("-",4))
+      estimates_out$`% reduction`[7:16] <- 100*(estimates_out$`No intervention`[7:16]-estimates_out$`With intervention`[7:16])/estimates_out$`No intervention`[7:16]
       
-      estimates_out$Estimate[7] <- sum(dat %in% c(13, 14)) # hospital bed days
-      estimates_out$Estimate[8] <- sum(dat == 13) # hospital admissions
-      estimates_out$Estimate[9] <- max(colSums((dat == 13) | (dat == 14))) # peak beds
-      estimates_out$Estimate[10] <- which.max(colSums((dat == 13) | (dat == 14))) # bed days peak on day...
+      # Round figures to 0 and 2 decimal places depending
+      estimates_out$`With intervention`[1:2] <- round(estimates_out$`With intervention`[1:2],0)
+      estimates_out$`With intervention`[3:4] <- round(estimates_out$`With intervention`[3:4],3)
+      estimates_out$`With intervention`[5:16] <- round(estimates_out$`With intervention`[5:16],0)
       
-      estimates_out$Estimate[11] <- sum(dat %in% c(15, 16)) # ITU days
-      estimates_out$Estimate[12] <- sum(dat == 15) # ITU admissions
-      estimates_out$Estimate[13] <- max(colSums((dat == 15) | (dat == 16))) # peak ITU beds
-      estimates_out$Estimate[14]<- which.max(colSums((dat == 15) | (dat == 16))) # ITU beds peak on day...
+      estimates_out$`No intervention`[1:2] <- round(estimates_out$`No intervention`[1:2],0)
+      estimates_out$`No intervention`[3:4] <- round(estimates_out$`No intervention`[3:4],3)
+      estimates_out$`No intervention`[5:16] <- round(estimates_out$`No intervention`[5:16],0)
       
-      estimates_out$Estimate[15] <- sum(ae_visits) # A&E visits
-      estimates_out$Estimate[16] <- sum(ambulance_trip) # ambulance trips
+      estimates_out$`% reduction`[1:2] <- round(estimates_out$`% reduction`[1:2],1)
+      estimates_out$`% reduction`[7:16] <- round(estimates_out$`% reduction`[7:16],1)
       
       p.list <- list(p1,p2,p3,p4,p5,estimates_out)
       
