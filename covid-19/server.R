@@ -27,6 +27,15 @@ library(RColorBrewer)
 
 set.seed(34) # this means that the results are replicable (i.e. random values come out the same every time)
 
+
+region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv")
+region.pop$region <- as.character(region.pop$region)
+add <- c("Custom", 10000, 10000)
+region.pop <- rbind(region.pop,add)
+
+list.regions <- as.list(region.pop$region)
+names(list.regions) <- region.pop$region
+
 is.odd <- function(x) x %% 2 != 0
 
 main.function <- function(total_days,hostel_population,rough_sleeping_population,proportion_vulnerable,
@@ -206,12 +215,31 @@ shinyServer(function(input, output, session) {
   
   observe({
     val <- input$outbreak_duration
-    # Control the value, min, max, and step.
-    # Step size is 2 when input value is even; 1 when value is odd.
-    updateSliderInput(session, "peak_day", value = val,
+    # Peak day maximum < outbreak duration
+    updateSliderInput(session, "peak_day", value = 40,
                       min = 0, max = val)
   })
   
+  observe({
+    val2 <- as.character(input$region_choice)
+    val_rough <- region.pop$rough_pop[region.pop$region==val2]
+    val_hostel <- region.pop$hostel_pop[region.pop$region==val2]
+    
+    # Populate homeless/rough populations based on region choice
+    updateNumericInput(session, "hostel_population", value = val_rough,
+                      min = 0, max = 50000)
+    updateNumericInput(session, "rough_sleeping_population", value = val_hostel,
+                       min = 0, max = 50000)
+  })
+  
+  # Add a link to a website
+  url <- a("UCL", href="https://www.ucl.ac.uk/") # define the link and text
+  output$url <- renderUI({
+    tagList(url) # now outputted as output$url
+  })
+
+  
+  # Code for all reactive calculations
   plots <- reactive({
     
     if(is.odd(input$action)==FALSE){
@@ -410,7 +438,38 @@ shinyServer(function(input, output, session) {
       
       p5 <- recordPlot()
       
-      p.list <- list(p1,p2,p3,p4,p5)
+      #----------------
+      # Outputs estimates for text
+      #----------------
+      
+      estimates_out <- data.frame(Parameter=c("Total COVID-19 cases","Total COVID-19 deaths","Actual cum. attack rate","CFR","Peak no. in CARE","Peak no. in PROTECT",
+                                              "Total hospital bed days","Total hospital admissions","Peak no. bed days",
+                                              "Day of bed day peak","Total ITU days","Total ITU admissions","Peak no. ITU beds","Day of ITU peak",
+                                              "Total A&E visits","Total ambulance trips"), Estimate = 0)
+      
+      estimates_out$Estimate[1] <- as.character(sum(ds[c(3, 4, 7, 10:17), total_days + 1])) # covid cases
+      estimates_out$Estimate[2] <- ds[17, total_days + 1] # died
+      estimates_out$Estimate[3] <- round(sum(ds[c(3, 4, 7, 10:17), total_days + 1]) / n, digits=3) # actual cumulative attack rate
+      estimates_out$Estimate[4] <- round(ds[17, total_days + 1] / sum(ds[c(3, 4, 7, 10:17), total_days + 1]), digits=3)  # CFR
+      estimates_out$Estimate[5] <- max(colSums((dat == 8) | (dat == 9) | (dat == 10) | (dat == 11))) # peak CARE
+      estimates_out$Estimate[6] <- max(colSums((dat == 5) | (dat == 6) | (dat == 7))) # peak PROTECT
+      
+      
+      
+      estimates_out$Estimate[7] <- sum(dat %in% c(13, 14)) # hospital bed days
+      estimates_out$Estimate[8] <- sum(dat == 13) # hospital admissions
+      estimates_out$Estimate[9] <- max(colSums((dat == 13) | (dat == 14))) # peak beds
+      estimates_out$Estimate[10] <- which.max(colSums((dat == 13) | (dat == 14))) # bed days peak on day...
+      
+      estimates_out$Estimate[11] <- sum(dat %in% c(15, 16)) # ITU days
+      estimates_out$Estimate[12] <- sum(dat == 15) # ITU admissions
+      estimates_out$Estimate[13] <- max(colSums((dat == 15) | (dat == 16))) # peak ITU beds
+      estimates_out$Estimate[14]<- which.max(colSums((dat == 15) | (dat == 16))) # ITU beds peak on day...
+      
+      estimates_out$Estimate[15] <- sum(ae_visits) # A&E visits
+      estimates_out$Estimate[16] <- sum(ambulance_trip) # ambulance trips
+      
+      p.list <- list(p1,p2,p3,p4,p5,estimates_out)
       
     }else{
       
@@ -649,7 +708,38 @@ shinyServer(function(input, output, session) {
       
       p5 <- recordPlot()
       
-      p.list <- list(p1,p2,p3,p4,p5)
+      #----------------
+      # Outputs estimates for text
+      #----------------
+      
+      estimates_out <- data.frame(Parameter=c("Total COVID-19 cases","Total COVID-19 deaths","Actual cum. attack rate","CFR","Peak no. in CARE","Peak no. in PROTECT",
+                                              "Total hospital bed days","Total hospital admissions","Peak no. bed days",
+                                              "Day of bed day peak","Total ITU days","Total ITU admissions","Peak no. ITU beds","Day of ITU peak",
+                                              "Total A&E visits","Total ambulance trips"), Estimate = 0)
+      
+      estimates_out$Estimate[1] <- as.character(sum(ds[c(3, 4, 7, 10:17), total_days + 1])) # covid cases
+      estimates_out$Estimate[2] <- ds[17, total_days + 1] # died
+      estimates_out$Estimate[3] <- round(sum(ds[c(3, 4, 7, 10:17), total_days + 1]) / n, digits=3) # actual cumulative attack rate
+      estimates_out$Estimate[4] <- round(ds[17, total_days + 1] / sum(ds[c(3, 4, 7, 10:17), total_days + 1]), digits=3)  # CFR
+      estimates_out$Estimate[5] <- max(colSums((dat == 8) | (dat == 9) | (dat == 10) | (dat == 11))) # peak CARE
+      estimates_out$Estimate[6] <- max(colSums((dat == 5) | (dat == 6) | (dat == 7))) # peak PROTECT
+      
+      
+      
+      estimates_out$Estimate[7] <- sum(dat %in% c(13, 14)) # hospital bed days
+      estimates_out$Estimate[8] <- sum(dat == 13) # hospital admissions
+      estimates_out$Estimate[9] <- max(colSums((dat == 13) | (dat == 14))) # peak beds
+      estimates_out$Estimate[10] <- which.max(colSums((dat == 13) | (dat == 14))) # bed days peak on day...
+      
+      estimates_out$Estimate[11] <- sum(dat %in% c(15, 16)) # ITU days
+      estimates_out$Estimate[12] <- sum(dat == 15) # ITU admissions
+      estimates_out$Estimate[13] <- max(colSums((dat == 15) | (dat == 16))) # peak ITU beds
+      estimates_out$Estimate[14]<- which.max(colSums((dat == 15) | (dat == 16))) # ITU beds peak on day...
+      
+      estimates_out$Estimate[15] <- sum(ae_visits) # A&E visits
+      estimates_out$Estimate[16] <- sum(ambulance_trip) # ambulance trips
+      
+      p.list <- list(p1,p2,p3,p4,p5,estimates_out)
       
     }
     
@@ -682,32 +772,20 @@ shinyServer(function(input, output, session) {
     plots()[[5]]
   })
   
+  # Reactive text for summaries
+  output$table_epidemic <- renderTable({
+    estimates_out <- plots()[[6]][1:6,]
+    estimates_out
+  })
+  output$table_healthcare <- renderTable({
+    estimates_out <- plots()[[6]][7:16,]
+    estimates_out
+  })
+  
+  
   # Point estimates
-  output$text_pointEstimates <- renderTable({
+  output$text_pointEstimates <- renderDataTable({
     
-    #----------------
-    
-    sum(ds[c(3, 4, 7, 10:17), total_days + 1]) # covid cases
-    sum(ds[c(3, 4, 7, 10:17), total_days + 1]) / n # actual cumulative attack rate
-    
-    max(colSums((dat == 8) | (dat == 9) | (dat == 10) | (dat == 11))) # peak CARE
-    max(colSums((dat == 5) | (dat == 6) | (dat == 7))) # peak PROTECT
-    
-    ds[17, total_days + 1] # died
-    ds[17, total_days + 1] / sum(ds[c(3, 4, 7, 10:17), total_days + 1])  # CFR
-    
-    sum(dat %in% c(13, 14)) # hospital bed days
-    sum(dat == 13) # hospital admissions
-    max(colSums((dat == 13) | (dat == 14))) # peak beds
-    which.max(colSums((dat == 13) | (dat == 14))) # bed days peak on day...
-    
-    sum(dat %in% c(15, 16)) # ITU days
-    sum(dat == 15) # ITU admissions
-    max(colSums((dat == 15) | (dat == 16))) # peak ITU beds
-    which.max(colSums((dat == 15) | (dat == 16))) # bed days peak on day...
-    
-    sum(ae_visits) # A&E visits
-    sum(ambulance_trip) # ambulance trips
   })
   
 })

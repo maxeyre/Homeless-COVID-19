@@ -11,8 +11,14 @@
 #     ")),
 
 library(shiny)
+region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv")
+region.pop$region <- as.character(region.pop$region)
+add <- c("Custom", 10000, 10000)
+region.pop <- rbind(region.pop,add)
 
-# region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/homeless_pop.csv?token=ANJMHSCDHPSE7RXHTVLJHHK6QZC7W")
+list.regions <- as.list(region.pop$region)
+names(list.regions) <- region.pop$region
+
 
 # Define UI 
 shinyUI(fluidPage(
@@ -30,10 +36,15 @@ shinyUI(fluidPage(
                         h4("Population"),
                         fluidRow(
                           column(3,
-                                 numericInput("hostel_population", label = "Hostel population", value = 8784, max= 50000)
+                                 selectInput("region_choice", label = "Choose region", 
+                                             choices = list.regions, 
+                                             selected = "Custom"),
+                                 ),
+                          column(3,
+                                 numericInput("hostel_population", label = "Hostel population", value = 10000, max= 50000)
                           ),
                           column(3,
-                                 numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 1136, max= 50000)
+                                 numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 10000, max= 50000)
                           ),
                           column(3,
                                  sliderInput("proportion_vulnerable", label = "Proportion vulnerable", min = 0, max = 1, value = 0.5)
@@ -55,7 +66,7 @@ shinyUI(fluidPage(
                           ),
                         ),
                         h3("2. Outputs - Graphs"),
-                        h6("Use the tabs below to view each graphical output"),
+                        h6("Use the tabs below to view each graphical output (may take ~10s to load)"),
                         
                         fluidRow(
                           column(12,
@@ -87,8 +98,16 @@ shinyUI(fluidPage(
                         actionButton("action", label = "Add/remove 'no intervention' results"),
                         
                         h3("3. Outputs - Key estimates"),
-                        h5("Total deaths: "),
-                        
+                        fluidRow(
+                          column(4,
+                                 h4("Epidemic overview"),
+                                 tableOutput("table_epidemic")
+                                 ),
+                          column(4,
+                                 h4("Healthcare use"),
+                                 tableOutput("table_healthcare")
+                          )
+                        ),
                         
                         br(),
                         h3("4. Other parameters"),
@@ -135,6 +154,7 @@ shinyUI(fluidPage(
                          h3("How can it be used?"),
                          h6("Add text"),
                          h3("The CARE-PROTECT Project"),
+                         uiOutput("url"), # add the link
                          h6("Add text"),
                          h3("Contact Us"),
                          h6("Add text, can add links to Github, twitter, websites etc."),
