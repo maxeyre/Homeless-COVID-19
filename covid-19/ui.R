@@ -65,7 +65,13 @@ shinyUI(fluidPage(
                                  sliderInput("accept_CARE", label = "Prop. accepting CARE/PROTECT", min = 0, max = 1, value = 0.7)
                           ),
                         ),
-                        h3("2. Outputs - Graphs"),
+                        
+                        h3("2. Run simulation"),
+                        checkboxInput("intervention", label="Include 'no intervention' results for comparison", FALSE),
+                        actionButton("action", label = "Compute results"),
+                        
+                        
+                        h3("3. Outputs - Graphs"),
                         h6("Use the tabs below to view each graphical output (may take ~10s to load)"),
                         
                         fluidRow(
@@ -95,9 +101,8 @@ shinyUI(fluidPage(
                                  )
                           )
                         ),
-                        actionButton("action", label = "Add/remove 'no intervention' results"),
                         
-                        h3("3. Outputs - Key estimates"),
+                        h3("4. Outputs - Key estimates"),
                         fluidRow(
                           column(5,
                                  h4("Epidemic overview"),
@@ -110,7 +115,7 @@ shinyUI(fluidPage(
                         ),
                         
                         br(),
-                        h3("4. Other parameters"),
+                        h3("5. Other parameters"),
                         h6("These parameters are set at our current best guess values"),
                         fluidRow(
                           column(4,
