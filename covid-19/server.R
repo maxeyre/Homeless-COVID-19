@@ -420,7 +420,7 @@ shinyServer(function(input, output, session) {
     cum_inc_noint <- cumsum(new_cases_noint) / n
     ymax <- ceiling(max(new_cases_total)/50) * 50
     
-    par(xpd = NA, mar = c(4, 5, 1, 0))
+    #par(xpd = NA, mar = c(4, 5, 1, 0))
     plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'New cases')
     rect(0, 0, nd + 1, ymax)
     title(xlab = 'Week', line = 2.5)
@@ -448,7 +448,7 @@ shinyServer(function(input, output, session) {
     #---------------------
     
     cols <- brewer.pal(nrow(ds_base[[2]]), 'Paired')
-    par(mar = c(4, 5, 1, 0), xpd = NA)
+    #par(mar = c(4, 5, 1, 0), xpd = NA)
     plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, n), axes = F, xlab = NA, ylab = NA)
     for(i in 1:nrow(ds_base[[2]])) {
       polygon(c(0:total_days, total_days:0), c(ds_base[[3]][i+1,], rev(ds_base[[3]][i,])), col = cols[i])
@@ -487,7 +487,7 @@ shinyServer(function(input, output, session) {
     covid_days_community <- colSums(ds_base[[1]][c(3, 4),])
     ae_visits  <- round(covid_days_community * (1/18), 0) + admissions
 
-    par(mar = c(4, 5, 1, 0), xpd = NA)
+    #par(mar = c(4, 5, 1, 0), xpd = NA)
     fpl(rbind(ds_base[[2]][6:7,], `A&E visits` = ae_visits, `Ambulance journeys` = admissions))
 
     p3 <- recordPlot()
@@ -495,7 +495,7 @@ shinyServer(function(input, output, session) {
     # Tab 4 - CARE & PROTECT use
     #---------------------------
     
-    par(mar = c(4, 5, 1, 0), xpd = NA)
+    #par(mar = c(4, 5, 1, 0), xpd = NA)
     fpl(ds_base[[2]][c(5, 2),], yrange = 0.05)
 
     p4 <- recordPlot()
@@ -510,7 +510,7 @@ shinyServer(function(input, output, session) {
     cum_deaths_noint <- cumsum(colSums(deaths_noint))
     max_deaths <- max(c(cum_deaths, cum_deaths_noint))
     ymax <- max(deaths)
-    par(xpd = NA, mar = c(4, 5, 1, 0))
+    #par(xpd = NA, mar = c(4, 5, 1, 0))
     plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'Daily deaths\n(with intervention)')
     rect(0:total_days, 0, 1:nd, deaths, col = "#8DA0CB", border = NA)
     axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
