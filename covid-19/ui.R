@@ -11,14 +11,10 @@
 #     ")),
 
 library(shiny)
-region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv")
-region.pop$region <- as.character(region.pop$region)
-add <- c("Custom", 10000, 10000)
-region.pop <- rbind(region.pop,add)
-
+region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv", stringsAsFactors = F)
+region.pop <- rbind(region.pop,c("Custom", 2500, 2500))
 list.regions <- as.list(region.pop$region)
 names(list.regions) <- region.pop$region
-
 
 # Define UI 
 shinyUI(fluidPage(
@@ -41,28 +37,28 @@ shinyUI(fluidPage(
                                              selected = "Custom"),
                                  ),
                           column(3,
-                                 numericInput("hostel_population", label = "Hostel population", value = 10000, max= 50000)
+                                 numericInput("hostel_population", label = "Hostel population", value = 2500, max= 50000)
                           ),
                           column(3,
-                                 numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 10000, max= 50000)
+                                 numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 2500, max= 50000)
                           ),
                           column(3,
-                                 sliderInput("proportion_vulnerable", label = "Proportion vulnerable", min = 0, max = 1, value = 0.5)
+                                 sliderInput("proportion_vulnerable", label = "Proportion vulnerable", min = 0, max = 1, value = 0.37)
                           )
                         ),
                         h4("PROTECT/CARE"),
                         fluidRow(
                           column(3,
-                                 sliderInput("PROTECT_incidence_fraction", label = "% reduction in incidence due to PROTECT", min = 0, max = 1, value = 0.5)
+                                 sliderInput("PROTECT_incidence_fraction", label = "% reduction in incidence due to PROTECT", min = 0, max = 1, value = 0.75)
                           ),
                           column(3,
                                  sliderInput("probability_identified", label = "Prop. identified for CARE/PROTECT", min = 0, max = 1, value = 0.7)
                           ),
                           column(3,
-                                 sliderInput("self_discharge_risk", label = "Risk of self discharge (from CARE and PROTECT)", min = 0, max = 1, value = 0.33)
+                                 sliderInput("self_discharge_risk", label = "Risk of self discharge (from CARE and PROTECT)", min = 0, max = 1, value = 0.2)
                           ),
                           column(3,
-                                 sliderInput("accept_CARE", label = "Prop. accepting CARE/PROTECT", min = 0, max = 1, value = 0.7)
+                                 sliderInput("accept_CARE", label = "Prop. accepting CARE/PROTECT", min = 0, max = 1, value = 0.8)
                           ),
                         ),
                         
@@ -120,7 +116,7 @@ shinyUI(fluidPage(
                         fluidRow(
                           column(4,
                                  h4("Interventions"),
-                                 radioButtons("all_protect", "Everyone offered PROTECT",choices=c('Yes'='TRUE','No'='FALSE')),
+                                 radioButtons("all_protect", "Everyone offered PROTECT",choices=c('No'='FALSE', 'Yes'='TRUE')),
                                  radioButtons("testing", "Testing for COVID-19",choices=c('Yes'='TRUE','No'='FALSE')),
                                  sliderInput("duration_CARE", label = "Duration of CARE (days)", min = 0, max = 30, value = 14),
                                  sliderInput("duration_PROTECT_recruitment", label = "PROTECT recruitment period (days)", min = 0, max = 60, value = 28),

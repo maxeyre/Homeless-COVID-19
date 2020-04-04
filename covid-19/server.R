@@ -29,10 +29,8 @@ library(RColorBrewer)
 # REGION DATA
 #============
 
-region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv")
-region.pop$region <- as.character(region.pop$region)
-add <- c("Custom", 2500, 2500)
-region.pop <- rbind(region.pop,add)
+region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv", stringsAsFactors = F)
+region.pop <- rbind(region.pop, c("Custom", 2500, 2500))
 list.regions <- as.list(region.pop$region)
 names(list.regions) <- region.pop$region
 
@@ -238,9 +236,9 @@ shinyServer(function(input, output, session) {
     val_hostel <- region.pop$hostel_pop[region.pop$region==val2]
     
     # Populate homeless/rough populations based on region choice
-    updateNumericInput(session, "hostel_population", value = val_rough,
+    updateNumericInput(session, "hostel_population", value = val_hostel,
                        min = 0, max = 50000)
-    updateNumericInput(session, "rough_sleeping_population", value = val_hostel,
+    updateNumericInput(session, "rough_sleeping_population", value = val_rough,
                        min = 0, max = 50000)
   })
   
