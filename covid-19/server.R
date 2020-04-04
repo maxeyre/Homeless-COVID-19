@@ -420,10 +420,10 @@ shinyServer(function(input, output, session) {
     cum_inc_noint <- cumsum(new_cases_noint) / n
     ymax <- ceiling(max(new_cases_total)/50) * 50
     
-    #par(xpd = NA, mar = c(4, 5, 1, 0))
-    plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'New cases')
+    plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, ymax), axes = F, xlab = NA, ylab = NA)
     rect(0, 0, nd + 1, ymax)
     title(xlab = 'Week', line = 2.5)
+    title(ylab = 'New cases', line = 2)
     rect(0:nd, 0, 1:(nd+1), new_cases_total, border = NA, col = 'grey80')
     rect(0:nd, 0, 1:(nd+1), new_cases_rough_sleepers, border = NA, col = 'grey60')
     lines(0:(nd-1) + 0.5, cum_inc * ymax, col = 'white', lwd = 5)
@@ -435,7 +435,6 @@ shinyServer(function(input, output, session) {
     axis(1, seq(0, floor(nd/14)*14, 14), 0:floor(nd/14) * 2, pos = 0)
     segments(0, 0, nd + 1)
     text(nd * 1.15, ymax/2, 'Cumulative incidence', srt = 270, col = 'red')
-    #text(nd - nd / 20, max(cum_inc + 0.05) * ymax, paste0(round(max(cum_inc) * 100, 0), '%'), col = 'red')
     ys <- ymax * seq(0.35, 0.65, length.out = 5)
     mid_ys <- ys[-length(ys)] + diff(ys)/2
     rect(nd * 1.2, ys[1:2], nd * 1.25, ys[2:3], col = c('grey60', 'grey80'), border = NA)
@@ -448,7 +447,6 @@ shinyServer(function(input, output, session) {
     #---------------------
     
     cols <- brewer.pal(nrow(ds_base[[2]]), 'Paired')
-    #par(mar = c(4, 5, 1, 0), xpd = NA)
     plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, n), axes = F, xlab = NA, ylab = NA)
     for(i in 1:nrow(ds_base[[2]])) {
       polygon(c(0:total_days, total_days:0), c(ds_base[[3]][i+1,], rev(ds_base[[3]][i,])), col = cols[i])
@@ -460,7 +458,7 @@ shinyServer(function(input, output, session) {
     rect(total_days * 1.07, ys[-length(ys)], total_days * 1.14, ys[-1], col = cols)
     text(total_days * 1.19, ys[-length(ys)] + diff(ys) / 2, rownames(ds_base[[2]]), adj = 0)
     title(xlab = 'Week', line = 2.5)
-    title(ylab = 'Population', line = 4)
+    title(ylab = 'Population', line = 2)
 
     p2 <- recordPlot()
     
@@ -480,14 +478,13 @@ shinyServer(function(input, output, session) {
       segments(total_days * 1.1, ys, total_days * 1.2, ys, col = cols, lwd = 2)
       text(total_days * 1.25, ys, row.names(d), adj = 0)
       title(xlab = 'Week', line = 2.5)
-      title(ylab = 'Number', line = 3.5)
+      title(ylab = 'Number', line = 2)
     }
     
     admissions <- colSums(ds_base[[1]][c(13, 15),])
     covid_days_community <- colSums(ds_base[[1]][c(3, 4),])
     ae_visits  <- round(covid_days_community * (1/18), 0) + admissions
 
-    #par(mar = c(4, 5, 1, 0), xpd = NA)
     fpl(rbind(ds_base[[2]][6:7,], `A&E visits` = ae_visits, `Ambulance journeys` = admissions))
 
     p3 <- recordPlot()
@@ -495,7 +492,6 @@ shinyServer(function(input, output, session) {
     # Tab 4 - CARE & PROTECT use
     #---------------------------
     
-    #par(mar = c(4, 5, 1, 0), xpd = NA)
     fpl(ds_base[[2]][c(5, 2),], yrange = 0.05)
 
     p4 <- recordPlot()
@@ -510,8 +506,8 @@ shinyServer(function(input, output, session) {
     cum_deaths_noint <- cumsum(colSums(deaths_noint))
     max_deaths <- max(c(cum_deaths, cum_deaths_noint))
     ymax <- max(deaths)
-    #par(xpd = NA, mar = c(4, 5, 1, 0))
-    plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, ymax), axes = F, xlab = NA, ylab = 'Daily deaths\n(with intervention)')
+    plot(1, type = 'n', xlim = c(0, nd * 1.5), ylim = c(0, ymax), axes = F, xlab = NA, ylab = NA)
+    title(ylab = 'Daily deaths\n(with intervention)', line = 2)
     rect(0:total_days, 0, 1:nd, deaths, col = "#8DA0CB", border = NA)
     axis(1, seq(0, floor(total_days/14)*14, 14), 0:floor(total_days/14) * 2, pos = 0)
     segments(0, 0, nd)
@@ -544,13 +540,10 @@ shinyServer(function(input, output, session) {
     estimates_out$`With intervention` <- format(round(estimates_out$`With intervention`, 0), big.mark = ',')
     estimates_out$`Without intervention` <- format(round(estimates_out$`Without intervention`, 0), big.mark = ',')
     
-    
     # Return outputs
     #---------------
     
-    p.list <- list(p1,p2,p3,p4,p5,estimates_out)
-    
-    return(p.list)
+    return(list(p1,p2,p3,p4,p5,estimates_out))
     
   })
   
