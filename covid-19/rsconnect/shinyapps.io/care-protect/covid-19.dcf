@@ -5,8 +5,8 @@ account: care-protect
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2027107
-bundleId: 2969763
+bundleId: 2969828
 url: https://care-protect.shinyapps.io/covid-19/
-when: 1586038923.0462
+when: 1586040621.88981
 asMultiple: FALSE
 asStatic: FALSE

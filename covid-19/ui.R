@@ -12,7 +12,7 @@
 
 library(shiny)
 region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv", stringsAsFactors = F)
-region.pop <- rbind(region.pop,c("Custom", 2500, 2500))
+region.pop <- rbind(region.pop,c("Custom", 3500, 1100))
 list.regions <- as.list(region.pop$region)
 names(list.regions) <- region.pop$region
 
@@ -37,10 +37,10 @@ shinyUI(fluidPage(
                                              selected = "Custom"),
                                  ),
                           column(3,
-                                 numericInput("hostel_population", label = "Hostel population", value = 2500, max= 50000)
+                                 numericInput("hostel_population", label = "Hostel population", value = 3500, max= 50000)
                           ),
                           column(3,
-                                 numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 2500, max= 50000)
+                                 numericInput("rough_sleeping_population", label = "Rough sleeping population", value = 1100, max= 50000)
                           ),
                           column(3,
                                  sliderInput("proportion_vulnerable", label = "Proportion vulnerable", min = 0, max = 1, value = 0.37)
@@ -117,7 +117,7 @@ shinyUI(fluidPage(
                           column(4,
                                  h4("Interventions"),
                                  radioButtons("all_protect", "Everyone offered PROTECT",choices=c('No'='FALSE', 'Yes'='TRUE')),
-                                 radioButtons("testing", "Testing for COVID-19",choices=c('Yes'='TRUE','No'='FALSE')),
+                                 radioButtons("testing", "Testing for COVID-19",choices=c('No'='FALSE', 'Yes'='TRUE')),
                                  sliderInput("duration_CARE", label = "Duration of CARE (days)", min = 0, max = 30, value = 14),
                                  sliderInput("duration_PROTECT_recruitment", label = "PROTECT recruitment period (days)", min = 0, max = 60, value = 28),
                                  numericInput("rr_vulnerable", "Risk ratio for vulnerable individuals",value=9),

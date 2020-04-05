@@ -12,8 +12,8 @@ library(RColorBrewer)
 # 3 = community: covid day 1
 # 4 = community: covid, other days
 # 5 = PROTECT: susceptible
-# 6 = PROTECT: ili (all transferred to covid PROTECT)
-# 7 = PROTECT: covid (all transferred to covid CARE)
+# 6 = PROTECT: ili (all transferred to covid CARE next day)
+# 7 = PROTECT: covid (all transferred to covid CARE next day)
 # 8 = CARE with ili (pre test): day 1
 # 9 = CARE with ili (pre test): other days
 # 10 = CARE with covid: day 1
@@ -24,13 +24,16 @@ library(RColorBrewer)
 # 15 = admitted to ITU: day 1
 # 16 = admitted to ITU: other days
 # 17 = died
+# 18 = CARE with new COVID: day 1
+# 19 = PROTECT: recovered: day 1
+# 20 = PROTECT: recovered: other days
 
 #============
 # REGION DATA
 #============
 
 region.pop <- read.csv("https://raw.githubusercontent.com/maxeyre/COVID-19/master/homeless_pop.csv", stringsAsFactors = F)
-region.pop <- rbind(region.pop, c("Custom", 2500, 2500))
+region.pop <- rbind(region.pop, c("Custom", 3500, 1100))
 list.regions <- as.list(region.pop$region)
 names(list.regions) <- region.pop$region
 
@@ -96,7 +99,7 @@ main.function <- function(outbreak_duration,hostel_population,rough_sleeping_pop
   
   # incidence in PROTECT (same multiplier / fraction of community incidence as used in COVID)
   ili_incidence_PROTECT <- ili_incidence * PROTECT_incidence_fraction
-  covid_incidence_PROTECT <- covid_incidence[1,] * PROTECT_incidence_fraction # placeholder
+  covid_incidence_PROTECT <- covid_incidence[1,] * PROTECT_incidence_fraction
   
   # PROTECT referral day
   PROTECT_referral_day <- sample(1:duration_PROTECT_recruitment, n, replace = T)
@@ -127,7 +130,6 @@ main.function <- function(outbreak_duration,hostel_population,rough_sleeping_pop
     q.sd <- if (day <= self_discharge_day) 0 else dat[, day - self_discharge_day]
     q.admission <- if (day <= admission_day) 0 else dat[, day - admission_day]
     q.admission.start <- if(day <= duration_admission) 0 else dat[, day - duration_admission]
-    q.covid.susceptible <- rowSums((dat == 3) | (dat == 7)) == 0
     
     # protect exceeded capacity yesterday (if so, then doesn't accept anyone today)
     protect_full <- if (is.na(max_protect)) F else sum(sy %in% 5:7) >= max_protect
@@ -140,6 +142,7 @@ main.function <- function(outbreak_duration,hostel_population,rough_sleeping_pop
     p.ref.CARE <- (rbinom(n, 1, accept) == 1) & (severity != 1)
     p.ref.PROTECT <- (rbinom(n, 1, accept) == 1) * !protect_full
     p.new.covid <- rbinom(n, 1, covid_incidence[type, day]) == 1 # incidence depends on both rough sleeper/hostel status, and day
+    p.new.covid.CARE <- rbinom(n, 1, covid_incidence[1, day]) == 1 # incidence in CARE is same as in hostels
     p.new.ili <- rbinom(n, 1, ili_incidence) == 1 & (!p.new.covid)
     p.new.covid.PROTECT <- rbinom(n, 1, covid_incidence_PROTECT[day]) == 1
     p.new.ili.PROTECT <- rbinom(n, 1, ili_incidence_PROTECT) == 1 & (!p.new.covid.PROTECT)
@@ -156,47 +159,49 @@ main.function <- function(outbreak_duration,hostel_population,rough_sleeping_pop
     # PROTECT 
     status[(sy == 1) & (PROTECT_referral_day == day) & p.ref.PROTECT & (cpe == 1) & identified] <- 5
     status[sy == 5 & p.new.ili.PROTECT] <- 6
-    status[sy == 5 & p.new.covid.PROTECT & q.covid.susceptible] <- 7
+    status[sy == 5 & p.new.covid.PROTECT] <- 7
     status[sy == 5 & p.self.discharge & (PROTECT_referral_day + self_discharge_day == day)] <- 1
+    status[sy == 20 & (q.sd == 19) & p.self.discharge] <- 12
+    status[sy == 19] <- 20
     
     # new diseases in community
     status[(sy == 1) & p.new.ili] <- 2
-    status[sy == 2] <- 1
-    status[(sy == 1) & p.new.covid & q.covid.susceptible] <- 3
+    status[sy == 2] <- 1 # ILI only modelled to last 1 day
+    status[(sy == 1) & p.new.covid] <- 3
     
-    # CARE: covid from hostel or PROTECT (returns to hostel if from PROTECT as recovered)
+    # CARE: covid
     status[(sy == 3) & p.ref.CARE & identified] <- 10
     status[(sy == 7)] <- 10
     status[(sy == 10)] <- 11
-    status[(sy == 11)] <- 11
-    status[(sy == 11) & (q.CARE.dur == 10)] <- 12
-    status[(sy == 11) & (q.CARE.dur == 10) & (cpe == 1) & (!testing) & p.ref.PROTECT] <- 5
+    status[(sy == 11) & (q.CARE.dur == 10 | q.CARE.dur == 18)] <- 12
+    status[(sy == 11) & (q.CARE.dur == 10) & (cpe == 1) & (!testing) & p.ref.PROTECT] <- 19
     status[(sy == 11) & p.self.discharge & (q.sd == 10)] <- 4
+    status[(sy == 18)] <- 11
     
-    # CARE: ili from hostel or PROTECT (returns to PROTECT if from PROTECT)
+    # CARE: ili
     status[(sy == 2) & p.ref.CARE & (day <= outbreak_duration)] <- 8
     status[(sy == 6) & (day <= outbreak_duration)] <- 8
     status[(sy == 8)] <- 9
-    status[(sy == 9)] <- 9
     status[(sy == 9) & (q.test == 8)] <- 1
     status[(sy == 9) & (q.test == 8) & (cpe == 1) & p.ref.PROTECT] <- 5
     status[(sy == 9) & p.self.discharge & (q.sd == 8)] <- 1
+    status[(sy %in% c(8, 9)) & p.new.covid.CARE] <- 18 # new covid
+    status[(sy == 18) & p.new.covid.CARE] <- 11
     
     # hospital admissions
-    status[(sy == 4) & (severity %in% 3:4) & (q.admission %in% c(3, 7))] <- 13
-    status[(sy == 11) & (severity == 4) & (q.admission %in% c(3, 7))] <- 13
+    status[(sy == 4) & (severity %in% 3:4) & (q.admission %in% c(3, 7, 18))] <- 13
+    status[(sy == 11) & (severity == 4) & (q.admission %in% c(3, 7, 18))] <- 13
     status[sy == 13] <- 14
     status[(sy == 14) & q.admission.start == 13] <- 12
-    status[(sy == 4) & (severity == 5) & (q.admission %in% c(3, 7))] <- 15
-    status[(sy == 11) & (severity == 5) & (q.admission %in% c(3, 7))] <- 15
+    status[(sy == 4) & (severity == 5) & (q.admission %in% c(3, 7, 18))] <- 15
+    status[(sy == 11) & (severity == 5) & (q.admission %in% c(3, 7, 18))] <- 15
     status[sy == 15] <- 16
     status[(sy == 16) & q.admission.start == 15] <- 12
     
     # deaths
-    day_of_death <- q.cov.died %in% c(3, 7)
+    day_of_death <- q.cov.died %in% c(3, 7, 18)
     status[(sy == 4) & p.died.community & day_of_death] <- 17
-    status[(sy %in% c(10, 11)) & p.died.CARE & day_of_death] <- 17
-    status[(sy %in% (13:16)) & p.died.CARE & day_of_death] <- 17
+    status[(sy %in% c(10, 11, 13:16)) & p.died.CARE & day_of_death] <- 17
     
     return(status)
     
@@ -221,7 +226,6 @@ i <- 0 ## What does this do? ##
 #====================
 
 shinyServer(function(input, output, session) {
-  
   
   observe({
     val <- input$outbreak_duration
@@ -341,14 +345,14 @@ shinyServer(function(input, output, session) {
       fs <- fm[, ncol(fm)] # final state
       bed_days <- colSums((fm == 13) | (fm == 14))
       itu_days <- colSums((fm == 15) | (fm == 16))
-      covid_cases <- sum(fs %in% c(3, 4, 7, 10:17))
-      covid_days_community <- sum(fm == 3 | fm == 4)
+      covid_cases <- sum(fs %in% c(3, 4, 7, 10:18))
+      covid_days_community <- sum(fm == 3 | fm == 4 | fm == 18)
       admissions = sum(fm == 13)
       itu <- sum(fm == 15)
       dth <- sum(fs == 17)
       c(
-        peak_CARE = max(colSums((fm == 8) | (fm == 9) | (fm == 10) | (fm == 11))),
-        peak_PROTECT = max(colSums((fm == 5) | (fm == 6) | (fm == 7))),
+        peak_CARE = max(colSums((fm == 8) | (fm == 9) | (fm == 10) | (fm == 11) | (fm == 18))),
+        peak_PROTECT = max(colSums((fm == 5) | (fm == 6) | (fm == 7) | (fm == 19) | (fm == 20))),
         cases = covid_cases,
         attack1000 = round(covid_cases / nrow(fm) * 1000, 0),
         deaths = dth,
@@ -373,15 +377,15 @@ shinyServer(function(input, output, session) {
     #----------------
     
     dsf <- function(fm) {
-      ds <- t(sapply(1:17, function(x) colSums(fm == x)))
+      ds <- t(sapply(1:20, function(x) colSums(fm == x)))
       ds2 <- rbind(`Community: susceptible` = colSums(ds[1:2,]),
-            `COVID-PROTECT` = colSums(ds[5:7,]),
-            `Community: recovered` = ds[12,],
-            `Community: COVID-19` = colSums(ds[3:4,]),
-            `COVID-CARE` = colSums(ds[8:11,]),
-            `Admitted to hospital` = colSums(ds[13:14,]),
-            `Admitted to ITU` = colSums(ds[15:16,]),
-            Died = ds[17,])
+                   `COVID-PROTECT` = colSums(ds[c(5:7,19:20),]),
+                   `Community: recovered` = ds[12,],
+                   `Community: COVID-19` = colSums(ds[3:4,]),
+                   `COVID-CARE` = colSums(ds[c(8:11,18),]),
+                   `Admitted to hospital` = colSums(ds[13:14,]),
+                   `Admitted to ITU` = colSums(ds[15:16,]),
+                   Died = ds[17,])
       list(ds, ds2, rbind(0, apply(ds2, 2, cumsum)))
     }
     
@@ -411,9 +415,9 @@ shinyServer(function(input, output, session) {
     nd <- ncol(dat_base)
     total_days <- ncol(dat_base) -1
     
-    new_cases_total <- colSums(ds_base[[1]][c(3, 7),])
-    new_cases_noint <- colSums(ds_noint[[1]][c(3, 7),])
-    new_cases_rough_sleepers <- colSums(((dat_base == 3) | (dat_base == 7)) & type == 2)
+    new_cases_total <- colSums(ds_base[[1]][c(3, 7, 18),])
+    new_cases_noint <- colSums(ds_noint[[1]][c(3, 7, 18),])
+    new_cases_rough_sleepers <- colSums(((dat_base == 3) | (dat_base == 7) | dat_base == 18) & type == 2)
     cum_inc <- cumsum(new_cases_total) / n
     cum_inc_noint <- cumsum(new_cases_noint) / n
     ymax <- ceiling(max(new_cases_total)/50) * 50
@@ -534,7 +538,7 @@ shinyServer(function(input, output, session) {
     estimates_out$`Without intervention` <- points_noint
     dif <- estimates_out$`With intervention` - estimates_out$`Without intervention`
     estimates_out$`% change` <- paste0(round(dif / estimates_out$`Without intervention` * 100, 1), '%')
-    estimates_out$`% change`[c(1, 2, 4)] <- '-'
+    estimates_out$`% change`[c(1, 2, 4, 10, 14)] <- ''
     estimates_out$`With intervention` <- format(round(estimates_out$`With intervention`, 0), big.mark = ',')
     estimates_out$`Without intervention` <- format(round(estimates_out$`Without intervention`, 0), big.mark = ',')
     
