@@ -247,7 +247,7 @@ shinyServer(function(input, output, session) {
   })
   
   # Add a link to a website
-  url <- a("UCL", href="https://www.ucl.ac.uk/") # define the link and text
+  url <- a("UCL CCIH", href="https://www.ucl.ac.uk/inclusion-health") # define the link and text
   output$url <- renderUI({
     tagList(url) # now outputted as output$url
   })
