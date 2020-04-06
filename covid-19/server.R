@@ -132,7 +132,7 @@ main.function <- function(outbreak_duration,hostel_population,rough_sleeping_pop
     q.admission.start <- if(day <= duration_admission) 0 else dat[, day - duration_admission]
     
     # protect exceeded capacity yesterday (if so, then doesn't accept anyone today)
-    protect_full <- if (is.na(max_protect)) F else sum(sy %in% 5:7) >= max_protect
+    protect_full <- if (is.na(max_protect)) F else sum(sy %in% c(5:7, 19:20)) >= max_protect
     
     # probabilities
     #--------------------
