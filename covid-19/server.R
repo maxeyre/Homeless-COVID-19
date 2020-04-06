@@ -252,6 +252,8 @@ shinyServer(function(input, output, session) {
     tagList(url) # now outputted as output$url
   })
   
+  observeEvent(input$action, {updateTabsetPanel(session, "panels", selected = "panel1")
+    })
   
   # Code for all reactive calculations
   plots <- eventReactive(input$action, {

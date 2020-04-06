@@ -72,8 +72,8 @@ shinyUI(fluidPage(
                         
                         fluidRow(
                           column(12,
-                                   tabsetPanel(type = "tabs",
-                                               tabPanel("Epidemic curve",  
+                                   tabsetPanel(id = "panels", type = "tabs",
+                                               tabPanel("Epidemic curve",value="panel1",  
                                                         h3("Epidemic curve"),
                                                         plotOutput("plot_EpiCurve")
                                                ),
