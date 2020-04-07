@@ -144,6 +144,11 @@ shinyUI(fluidPage(
                                  sliderInput("duration_covid", label = "Time to recovery (days)", min = 0, max = 90, value = 15)
                           ),
                         ),
+                        fluidRow(
+                          column(5,
+                                 plotOutput("plot_x")
+                          )
+                        ),
                ),
                
                tabPanel("About",

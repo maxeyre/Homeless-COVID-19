@@ -327,7 +327,7 @@ shinyServer(function(input, output, session) {
     
     dat_base <- out[[1]]
     covid_incidence_base <- out[[2]]
-    
+    rm("out")
     # no intevention model
     #---------------------
     
@@ -339,7 +339,7 @@ shinyServer(function(input, output, session) {
     
     dat_noint <- out_no_interv[[1]]
     covid_incidence_noint <- out_no_interv[[2]]
-    
+    rm("out_no_interv")
     # point estimates
     #----------------
     
@@ -546,8 +546,9 @@ shinyServer(function(input, output, session) {
     
     # Return outputs
     #---------------
-    
-    return(list(p1,p2,p3,p4,p5,estimates_out))
+    plot.new()
+    p_x <- recordPlot()
+    return(list(p1,p2,p3,p4,p5,estimates_out,p_x))
     
   })
   
@@ -575,6 +576,12 @@ shinyServer(function(input, output, session) {
   output$plot_deaths <- renderPlot({
     plots()[[5]]
   })
+  
+  # Tab 5 plot
+  output$plot_x <- renderPlot({
+    plots()[[7]]
+  })
+  
   
   # Reactive text for summaries
   output$table_epidemic <- renderTable({
