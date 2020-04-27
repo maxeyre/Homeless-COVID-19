@@ -1,4 +1,3 @@
-setwd("~/Documents/covid19")
 set.seed(20)
 
 #-----------------
@@ -8,7 +7,7 @@ set.seed(20)
 # hostels (actual hostel numbers and sizes)
 #------------------------------------------
 
-hl <- scan("hl_hostel_beds.csv")
+hl <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/hl_hostel_beds.csv")
 h_cl <- rep(seq_along(hl), hl)
 
 # rough sleeping population (synthetic groups)
@@ -39,7 +38,7 @@ n <- length(cl) # total population size
 # background incidence
 #---------------------
 
-bi <- scan("lshtm_ld_1000.csv") # daily new cases in LSHTM "lockdown 1,000" scenario, ages 20-64, starting 29 Jan 2020
+bi <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/lshtm_ld_1000.csv") # daily new cases in LSHTM "lockdown 1,000" scenario, ages 20-64, starting 29 Jan 2020
 inc <- bi / 34339236 # ONS mid-year 2019 population estimate, ages 20-64
 
 #---------------
