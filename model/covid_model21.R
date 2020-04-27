@@ -1,4 +1,4 @@
-setwd("//ad.ucl.ac.uk/homee/rmhidle/DesktopSettings/Desktop/other/covid19")
+setwd("~/Documents/covid19")
 set.seed(20)
 
 #-----------------
@@ -60,8 +60,11 @@ run_model <- function(
   max_protect = NA, # NA for no maximum PROTECT (i.e. models demand)
   model_duration = 196,
   interventions_start = 32,
+  intervention_ends = NA,
   TEST = F, # test with one big cluster, no background incidence, and seeded with 10
-
+  suppressDays = NA,
+  suppressValue = 1,
+  
   # population
   #-----------
   
@@ -153,6 +156,13 @@ run_model <- function(
   # duration people with ili in CARE
   day.ili <- if (testing) day.res else day.end - day.sym - 1
   
+  # R0 supress
+  r0suppress <- rep(F, model_duration)
+  r0suppress[suppressDays] <- T
+  
+  # intervention ends
+  ends <- min(model_duration, intervention_ends, na.rm = T)
+  
   # TEST values
   cl <- if (TEST) type else cl
   inc <- if (TEST) rep(0, model_duration) else inc
@@ -223,6 +233,7 @@ run_model <- function(
     iN[location == 2] <- sum(sy == 11 | sy == 12) / sum(location == 2) # covid PROTECT
     iN[location == 3] <- sum(sy == 17 | sy == 18) / sum(location == 3) # covid CARE
     r0i <- r0c[type]
+    r0i[r0suppress[day]] <- suppressValue
     r0i[location == 2] <- r0_cp
     r0i[location == 3] <- r0_cc
     foi <- 1 - exp(-iN * g * r0i)
@@ -233,10 +244,10 @@ run_model <- function(
     
     protect_full <- if (is.na(max_protect)) F else sum(location == 2) >= max_protect
 
-    # intervention started
-    #---------------------
+    # intervention open
+    #------------------
     
-    started <- day >= interventions_start
+    started <- (day >= interventions_start) & (day <= ends)
     
     # probabilities
     #--------------
@@ -278,6 +289,8 @@ run_model <- function(
     status[sy == 12] <- 18 # transferred to COVID-CARE
     status[sy == 8 & p.sdg] <- 1 # self-discharge
     status[sy == 13 & p.sdg] <- 7 # self-discharge
+    status[sy == 8 & !started] <- 1
+    status[sy == 13 & !started] <- 7
     
     # CARE: covid
     status[location == 3 & q.inf] <- 17
