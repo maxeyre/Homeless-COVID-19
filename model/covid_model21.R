@@ -95,10 +95,10 @@ run_model <- function(
   cfr = c(0, 0.0001, 0.0025, 0.02, 0.6), # for non-vulnerable, by severity
 
   # r0
-  r0_h = 3.2, # hostel
-  r0_rs = 2.7, # rough sleeping
-  r0_cc = 1, # covid care
-  r0_cp = 1, # covid protect
+  r0_h = 1.4, # hostel
+  r0_rs = 1.4, # rough sleeping
+  r0_cc = 0.75, # covid care
+  r0_cp = 0.75, # covid protect
 
   # incidence of influenza-like illness
   ili_incidence = 6.3/700
