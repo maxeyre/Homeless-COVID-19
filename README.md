@@ -2,7 +2,7 @@
 ### A modelling study of the COVID-19 pandemic among people experiencing homelessness and the impact of a residential intervention to isolate vulnerable people and treat people with symptoms
 
 ## Key outputs
-- Report pre-print can be accessed [here](www.google.com)
+- Report pre-print can be accessed [here](https://www.medrxiv.org/content/10.1101/2020.05.04.20079301v1.full.pdf)
 - R Shiny app for policy makers currently accessible at https://care-protect.shinyapps.io/covid-19/
 
 ## Background to COVID-PROTECT and COVID-CARE
