@@ -1,3 +1,11 @@
+# METADATA
+# This script is associated with the article 'COVID-19 among people experiencing homelessness in England: a modelling study'
+# [ Add publication details ]
+# This script estimates daily incidence in the general population, based on estimates of cumulative incidence at the end of the 'first wave'
+# The script produces the file 'gp_cases31july2020.csv' that is already included in the repository. This file is a model input
+# There is no need to run this script prior to running the model; it is only provided for completeness
+# The script is written in R4.0.0 but is compatible with most recent versions of R
+
 options(scipen = 999)
 library(RColorBrewer)
 
@@ -8,9 +16,9 @@ library(RColorBrewer)
 model_start <- as.Date('2020-02-01')
 model_end <- as.Date('2021-01-31')
 
-#------------------------------
-# general population prevalence
-#==============================
+#------------------------------------------------------------
+# cumulative incidence of infection in the general population
+#============================================================
 
 ons <- 0.054 # ONS infection survey. https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/latest#antibody-data
 mrc <- 0.08
