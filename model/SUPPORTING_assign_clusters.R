@@ -53,6 +53,4 @@ hotel_cl <- c(rep(0L, length(h_cl)), hotel_cl)
 # create RData file
 # =================
 
-rm(list = setdiff(ls(), c('cl', 'type', 'n', 'hotel_cl')))
-
 save(list = c('cl', 'type', 'n', 'hotel_cl'), file = 'cluster_ids.RData')
