@@ -27,7 +27,7 @@ population <- 55977178 # England mid-year 2019. https://www.ons.gov.uk/peoplepop
 wave1_cases_ons <- population * ons
 wave1_cases_mrc <- population * mrc
 wave1_cases_low <- population * low
-baseline <- 2500 # daily infections outside of 'wave'. ONS infection survey suggests 26,900 new infections per day from 26 April - 13 June
+baseline <- 5000 # daily infections outside of 'wave'
 
 #---------------------------
 # wave 1 shape from PCR data
