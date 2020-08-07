@@ -1,23 +1,23 @@
-# COVID-19 and homelessness in England 
-### A modelling study of the COVID-19 pandemic among people experiencing homelessness and the impact of a residential intervention to isolate vulnerable people and treat people with symptoms
+# COVID-19 among people experiencing homelessness in England: a modelling study 
 
 ## Key outputs
 - Report pre-print can be accessed [here](https://www.medrxiv.org/content/10.1101/2020.05.04.20079301v1.full.pdf)
-- R Shiny app for policy makers currently accessible at https://care-protect.shinyapps.io/covid-19/
-
-## Background to COVID-PROTECT and COVID-CARE
-Health and housing authorities in England have established a plan to provide single room own-bathroom accommodation and care to homeless adults in England during the COVID-19 pandemic. As part of this plan, nurses or other trained staff will visit hostels, soup kitchens, day centres and other services for homeless people, and use a triage tool to determine eligibility. People with symptoms of COVID-19 will be offered ‘COVID-CARE’ accommodation, where isolation, observation, medical support and referral to hospitals are provided. People who are asymptomatic but vulnerable to severe disease will be offered ‘COVID-PROTECT’ accommodation, which is designed to reduce the risk of becoming infected. As of April 2020, the programme is in the early phases of implementation in London and is under review by other UK regions.
+- Main article [ADD LINK]
+- R Shiny app for policy makers currently accessible at https://care-protect.shinyapps.io/covid-19/. Note that this application was developed at an early stage of the COVID-19 pandemic and was designed to inform planning of interventions for people experience homelessness. It does replicate the model that is reported in the main article.
 
 ## About this model
-This model forecasts the demand for COVID-CARE and COVID-PROTECT and their impact on deaths and hospital use. It is intended for people who are planning COVID-CARE and COVID-PROTECT or trying to understand its possible benefits. The model uses a 'discrete time Markov chain' method, which means that it assumes that individuals have a certain probibility of moving between different statuses, such as the probability of developing COVID-19, or the probability of accepting an offer to move into COVID-PROTECT accomodation. The model helps to understand what might happen under certain assumptions.
+This model estimates the impact of COVID-19 on people experiencing homeless in England. It uses estimates of the impact on this population during the 'first wave' (up to 31 May 2020) to calibrate model assumptions, and then explores the potential future impact in different scenarios. The model uses a 'discrete time Markov chain' method, which means that it assumes that individuals have a certain probibility of moving between different statuses, such as the probability of developing COVID-19, or the probability of accepting an offer to move into COVID-PROTECT accomodation.
+
+## Key results
+[ADD ABSTRACT HERE ONCE PUBLISHED]
 
 ## Repository contents
 - [Model](https://github.com/maxeyre/Homeless-COVID-19/tree/master/model)
-  - Functions for model ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/covid_model21.R))
-  - Running model and creating plots ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/covid_homless_model_chart.R))
-  - [UK hostel population data](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/hl_hostel_beds.csv)
-  - [LSHTM UK COVID-19 daily incidence predictions](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/lshtm_ld_1000.csv)
-- [R Shiny code](https://github.com/maxeyre/Homeless-COVID-19/tree/master/covid-19)
+  - Functions for model ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/model_function.R))
+  - Running model and creating outputs ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/multiple_model_runs.R))
+  - Model inputs / data (files with the prefix 'INPUT_')
+  - Supporting code files that do not need to be run prior to running the model, and are provided for completeness and transparency (files with the prefix 'SUPPORTING_')
+- [R Shiny code](https://github.com/maxeyre/Homeless-COVID-19/tree/master/covid-19), which is provided as an archive and does not replicate the most recent version of the model.
 
 ## Contact Us
 This model was built by a research group led by the [UCL Collaborative Centre for Inclusion Health](https://www.ucl.ac.uk/inclusion-health).
