@@ -9,7 +9,7 @@
 set.seed(20)
 
 # hostels (actual hostel numbers and sizes)
-hl <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/hl_hostel_beds.csv")
+hl <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/SUPPORTING_hl_hostel_beds.csv")
 h_cl <- rep(seq_along(hl), hl) # hotel cluster ID's
 
 # overall rough sleeping population size (street sleeping + night shelters)
@@ -17,7 +17,7 @@ rs <- 10748L
 
 # night shelters (based on night shelters in London)
 number_in_ns <- round(963L / (1136L/4266L), 0L)
-nss <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/nightshelter_sizes_london.csv")
+nss <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/SUPPORTING_nightshelter_sizes_london.csv")
 ns_sample <- sample(nss, floor(number_in_ns / mean(nss) * 1.5), replace = T)
 ns_sample <- ns_sample[cumsum(ns_sample) < number_in_ns]
 ns_sample <- c(ns_sample, number_in_ns - sum(ns_sample))
@@ -41,7 +41,7 @@ type <- c(rep(1L, sum(hl)), rep(2L, number_in_ns), rep(3L, street_sleeping_pop))
 n <- length(cl) # total population size
 
 # COVID-PROTECT hotels (people sleeping rough only)
-hotels <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/hotel_sizes.csv")
+hotels <- scan("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/SUPPORTING_hotel_sizes.csv")
 hotel_sample <- sample(hotels, floor(rs / mean(hotels) * 1.5), replace = T)
 hotel_sample <- hotel_sample[cumsum(hotel_sample) < rs]
 hotel_sample <- c(hotel_sample, rs - sum(hotel_sample))
