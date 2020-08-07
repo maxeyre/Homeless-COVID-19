@@ -49,12 +49,12 @@
 # 'n' = total number of individuals in the model
 # 'hotel_cl' = id for the COVID-PROTECT hotel that an individual would be transferred to, if they accept
 
-load(url("https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/cluster_ids.RData?raw=TRUE"))
+load(url("https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/INPUT_cluster_ids.RData?raw=TRUE"))
 
 # background incidence
 # --------------------
 
-background_incidence <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/gp_cases31july2020.csv", colClasses = c('Date', rep('integer', 6)))
+background_incidence <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/INPUT_gp_cases31july2020.csv", colClasses = c('Date', rep('integer', 6)))
 background_incidence$date <- NULL
 gp_scenarios <- c('wave1_ons', 'wave1_mrc', 'wave1_low', 'wave2_sharp', 'wave2_flat')
 background_incidence[, gp_scenarios] <- background_incidence[, gp_scenarios] / 56286961 # population of England (calculate daily incidence)
