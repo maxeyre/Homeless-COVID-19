@@ -35,7 +35,7 @@ baseline <- 5000 # daily infections outside of 'wave'
 
 # https://coronavirus.data.gov.uk/; accessed 19 June 2020
 
-cases <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/covid_cases_19june2020.csv")
+cases <- read.csv("https://raw.githubusercontent.com/maxeyre/Homeless-COVID-19/master/model/SUPPORTING_covid_cases_19june2020.csv")
 cases$date <- as.Date(cases$date)
 
 wave1_start <- cases$date[min(which(cases$cases > 50))]
