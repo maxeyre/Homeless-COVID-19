@@ -2,7 +2,6 @@
 # This script is associated with the article 'COVID-19 among people experiencing homelessness in England: a modelling study'
 # [ Add publication details ]
 # This script assigns individuals to specific clusters / sub-groups, which are modelled as closed groups within which transmission occurs
-# The script produces the file 'gp_cases31july2020.csv' that is already included in the repository. This file is a model input# There is no need to run this script prior to running the model; it is only provided for completeness
 # There is no need to run this script prior to running the model; it is only provided for completeness and to ensure reproducability of results (as the implementation of set.seed varies between different versions of R)
 # The script is written in R4.0.0 but is compatible with most recent versions of R
 
