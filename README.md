@@ -13,7 +13,7 @@ This model estimates the impact of COVID-19 on people experiencing homeless in E
 
 ## Repository contents
 - [Model](https://github.com/maxeyre/Homeless-COVID-19/tree/master/model)
-  - Functions for model ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/model_function.R))
+  - The function that runs the model once ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/model_function.R))
   - Running model and creating outputs ([R Script](https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/main_model_runs.R))
   - Model inputs / data (files with the prefix 'INPUT_')
   - Supporting data and files that have been used to create model inputs. These are not needed to run the model (as the results are already saved in the repository), and are provided for completeness and transparency (files with the prefix 'SUPPORTING_')
