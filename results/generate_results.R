@@ -9,6 +9,8 @@ library(RColorBrewer)
 # mcA_cases:mcH_cases = daily new cases with probabilistic variation in inputs
 
 load("homeless_model_results_25aug2020.RData")
+load(url("https://github.com/maxeyre/Homeless-COVID-19/blob/master/model/INPUT_cluster_ids.RData?raw=TRUE"))
+
 
 sf <- function(x) {
   y <- apply(x, 2, quantile, probs = c(0.025, 0.5, 0.975))
