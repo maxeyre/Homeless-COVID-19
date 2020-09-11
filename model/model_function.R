@@ -6,7 +6,7 @@
 # An internet connection is required to read some of the inputs from GitHub
 # Individuals are assumed to be in one of 16 discrete statuses, which are described in section 1, below
 # Running the function 'run_model' will produce an integer matrix in which each row is an individual, each column is a day, and the cell value represents the status of the individual on that day
-# For example: {m <- run_model()} will use the default model parameters and assign a matrix of size 46,565 x 120 to variable 'm'
+# For example: {m <- run_model()} will use the default model parameters and assign a matrix of size 46,565 x 365 to variable 'm'
 # Other scripts interpet this output, run the model multiple times, and create results
 # The script is written in R4.0.0 but is compatible with most recent versions of R
 
