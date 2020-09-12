@@ -11,7 +11,7 @@
 # ======
 
 set.seed(20)
-library(mc2d)
+library(mc2d) # for PERT distribution
 
 nmc <- 200
 
