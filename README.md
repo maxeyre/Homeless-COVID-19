@@ -1,7 +1,7 @@
 # COVID-19 among people experiencing homelessness in England: a modelling study 
 
 ## Key outputs
-- Article published in Lancet Respiratory Medicine [ADD LINK]
+- Article published in Lancet Respiratory Medicine [here](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600(20)30396-9/fulltext)
 - R Shiny app for policy makers currently accessible at https://care-protect.shinyapps.io/covid-19/. Note that this application was developed at an early stage of the COVID-19 pandemic and was designed to inform planning of interventions for people experience homelessness. It does not does not replicate the most recent version of the model reported in the article.
 
 ## About this model
