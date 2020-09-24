@@ -1,6 +1,10 @@
 # METADATA
-# This script is associated with the article 'COVID-19 among people experiencing homelessness in England: a modelling study'
-# [ Add publication details ]
+
+# This script is associated with the article:
+
+# Lewer D, Braithwaite I, Bullock M, Eyre MT, White PJ, Story A, Hayward A. 2020. COVID 19 among people experiencing homelessnes s in England: a modelling
+# study. Lancet Respiratory Medicine. https://doi.org/10.1016/S2213-2600(20)30396-9
+
 # This script runs the model a set number of times (e.g. 200)
 # It also compares the first and second half of model runs (to check stability of results)
 # These computations are not memory-intensive (i.e. do not require a lot of RAM) but may take a long time to run on a single machine. You can set 'n_runs' to a smaller number of runs.
