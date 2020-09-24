@@ -1,6 +1,10 @@
 # METADATA
-# This script is associated with the article 'COVID-19 among people experiencing homelessness in England: a modelling study'
-# [ Add publication details ]
+
+# This script is associated with the article:
+
+# Lewer D, Braithwaite I, Bullock M, Eyre MT, White PJ, Story A, Hayward A. 2020. COVID 19 among people experiencing homelessnes s in England: a modelling
+# study. Lancet Respiratory Medicine. https://doi.org/10.1016/S2213-2600(20)30396-9
+
 # This script includes the function 'run_model', which is the main function that runs a single iteration of the model
 # There are also fixed parameters that are assigned to the global environment prior to defining the function. These are required to run the model
 # An internet connection is required to read some of the inputs from GitHub
