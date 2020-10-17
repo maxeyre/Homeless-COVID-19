@@ -20,8 +20,6 @@ This model estimates the impact of COVID-19 on people experiencing homeless in E
 This model was built by a research group led by the [UCL Collaborative Centre for Inclusion Health](https://www.ucl.ac.uk/inclusion-health).
 
 ## License
-Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
-
 This work is licensed under a
 [Creative Commons Attribution 4.0 International License][cc-by].
 
