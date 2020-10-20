@@ -23,6 +23,10 @@ This model was built by a research group led by the [UCL Collaborative Centre fo
 This work is licensed under a
 [Creative Commons Attribution 4.0 International License][cc-by].
 
+Please cite the published article:
+
+Lewer D, Braithwaite I, Bullock M, Eyre MT, White PJ, Story A, Hayward A. 2020. COVID 19 among people experiencing homelessnes s in England: a modelling study. Lancet Respiratory Medicine. https://doi.org/10.1016/S2213-2600(20)30396-9
+
 [![CC BY 4.0][cc-by-image]][cc-by]
 
 [cc-by]: http://creativecommons.org/licenses/by/4.0/
