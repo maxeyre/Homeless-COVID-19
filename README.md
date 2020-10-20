@@ -25,7 +25,7 @@ This work is licensed under a
 
 Please cite the published article:
 
-Lewer D, Braithwaite I, Bullock M, Eyre MT, White PJ, Story A, Hayward A. 2020. COVID 19 among people experiencing homelessnes s in England: a modelling study. Lancet Respiratory Medicine. https://doi.org/10.1016/S2213-2600(20)30396-9
+Lewer D, Braithwaite I, Bullock M, Eyre MT, White PJ, Story A, Hayward A. 2020. COVID 19 among people experiencing homelessness in England: a modelling study. Lancet Respiratory Medicine. https://doi.org/10.1016/S2213-2600(20)30396-9
 
 [![CC BY 4.0][cc-by-image]][cc-by]
 
